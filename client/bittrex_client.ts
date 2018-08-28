@@ -1,6 +1,10 @@
-'use strict';
+import { ClientResponse } from "http";
+import { OrderBook } from "../api/orderbook"
 
-import * as https from 'https';
+const https = require("https");
+
+// const OrderBook = require("../api/orderbook");
+'use strict';
 
 class BittrexClient {
     bittrexApiUrl: string;
@@ -9,16 +13,21 @@ class BittrexClient {
         this.bittrexApiUrl = `https://${bittrexApiUrl}/v1.1/public/`;
     }
 
-    async getOrderBook(ticker = 'BTC-ETH') {
+    async getOrderBook(ticker = 'BTC-ETH'): Promise<OrderBook> {
         let orderBookEndpoint = `${this.bittrexApiUrl}getorderbook?market=${ticker}&type=both`;
 
-        let orderBook = await this.getFromBittrex(orderBookEndpoint);
-        return orderBook;
+        let bookData = await this.getFromBittrex(orderBookEndpoint);
+
+        return {
+            exchange: "bittrex",
+            buy: bookData.result.buy,
+            sell: bookData.result.sell
+        }
     }
 
-    private async getFromBittrex(endpoint: string) {
-        return new Promise<object>((resolve, reject) => {
-            https.get(endpoint, res => {
+    private async getFromBittrex(endpoint: string): Promise<any> {
+        return new Promise<any>((resolve, reject) => {
+            https.get(endpoint, (res: ClientResponse) => {
                 let blob = '';
 
                 res.on('data', (data: Buffer) => {
@@ -29,7 +38,7 @@ class BittrexClient {
                     return resolve(JSON.parse(blob));
                 });
             })
-            .on('error', (e) => {
+            .on('error', (e: Error) => {
                 return reject(e);
             });
         });
