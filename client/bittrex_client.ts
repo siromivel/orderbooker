@@ -45,20 +45,4 @@ class BittrexClient {
     }
 }
 
-const bittrexClient = new BittrexClient('bittrex.com/api');
-
-bittrexClient.getOrderBook().then((result: any) => {
-    console.log(result);
-});
-
-/*
-    Orderbook call response:
-    {
-        success: bool,
-        message: string,
-        result: {
-            buy: object[],
-            sell: object[]
-        }
-    }
-*/
+module.exports = BittrexClient;
