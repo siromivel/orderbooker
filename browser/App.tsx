@@ -1,15 +1,10 @@
 import React, { Component } from "react";
+import OrderBook from "./OrderBook";
 
 class App extends Component {
   constructor(props: object) {
     super(props);
-    this.state = { orderbook: {} };
-  }
-
-  componentDidMount() {
-    fetch('http://localhost:1420/api/orderbook/combined')
-      .then(response => response.json())
-      .then(orderbook => this.setState({ orderbook: orderbook }));
+    this.state = { };
   }
 
   render() {
@@ -17,8 +12,7 @@ class App extends Component {
       <div>
         Send Corn
         <div>
-          Enjoy this
-          {JSON.stringify(this.state)}
+          <OrderBook />
         </div>
       </div>
     )
