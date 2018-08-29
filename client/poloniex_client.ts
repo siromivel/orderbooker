@@ -1,4 +1,5 @@
 import { OrderBook } from "../api/orderbook"
+import { Order } from "../api/order";
 const ExchangeClient = require("../client/exchange_client");
 'use strict';
 
@@ -14,12 +15,15 @@ class PoloniexClient extends ExchangeClient {
         let orderBookEndpoint = `${this.poloniexApiUrl}returnOrderBook&currencyPair=${ticker}&depth=100`;
 
         let bookData = await this.getExchangeData(orderBookEndpoint);
-
         return {
             exchange: "poloniex",
-            buy: bookData.bids,
-            sell: bookData.asks
+            bids: bookData.bids.map(this.mapPoloniexOrderDataToOrder),
+            asks: bookData.asks.map(this.mapPoloniexOrderDataToOrder)
         }
+    }
+
+    private mapPoloniexOrderDataToOrder(order: any): Order {
+        return { quantity: order[1], rate: +order[0] }
     }
 }
 

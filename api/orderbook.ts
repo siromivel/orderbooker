@@ -1,5 +1,7 @@
+import { Order } from "./order";
+
 export interface OrderBook {
     exchange: string;
-    buy: object[];
-    sell: object[];
+    bids: Order[];
+    asks: Order[];
 }
