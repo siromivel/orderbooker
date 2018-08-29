@@ -1,6 +1,6 @@
-import { Order } from "../api/order"
-import { OrderBook } from "../api/orderbook"
-const ExchangeClient = require("../client/exchange_client");
+import { Order } from '../api/order'
+import { OrderBook } from '../api/orderbook'
+const ExchangeClient = require('../client/exchange_client');
 'use strict';
 
 class BittrexClient extends ExchangeClient {

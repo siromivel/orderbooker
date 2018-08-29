@@ -1,14 +1,12 @@
-import { OrderBook } from "./api/orderbook"
+const express = require('express');
+'use strict';
 
-const BittrexClient = require('./client/bittrex_client');
-const PoloniexClient = require('./client/poloniex_client');
-const bittrexClient = new BittrexClient('bittrex.com/api');
-const poloniexClient = new PoloniexClient('poloniex.com/public?command=');
+class App {
+    public app: any
 
-bittrexClient.getOrderBook().then((result: OrderBook) => {
-    console.log(result);
-});
+    constructor() {
+        this.app = express();
+    }
+}
 
-poloniexClient.getOrderBook().then((result: OrderBook) => {
-    console.log(result);
-});
+export default new App().app;
