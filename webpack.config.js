@@ -11,7 +11,8 @@ module.exports = {
         rules: [
             {
                 test: /\.(ts|tsx)$/,
-                loader: "awesome-typescript-loader"
+                loader: "awesome-typescript-loader",
+                exclude: path.resolve(__dirname, 'server')
             },
         ]
     },

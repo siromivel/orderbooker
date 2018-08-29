@@ -4,6 +4,7 @@
   "description": "",
   "main": "server/server.ts",
   "scripts": {
+    "bundle-dev": "./node_modules/.bin/webpack --mode development --display-error-details",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

@@ -1,4 +1,4 @@
-import { OrderBook } from "../api/orderbook";
+import { OrderBook } from "./api/orderbook";
 import app from "./app";
 import { Response, Request } from "express";
 const express = require('express');
@@ -6,8 +6,8 @@ const path = require('path');
 
 const port = 1420;
 
-const BittrexClient = require('../client/bittrex_client');
-const PoloniexClient = require('../client/poloniex_client');
+const BittrexClient = require('./client/bittrex_client');
+const PoloniexClient = require('./client/poloniex_client');
 const bittrexClient = new BittrexClient('bittrex.com/api');
 const poloniexClient = new PoloniexClient('poloniex.com/public?command=');
 
