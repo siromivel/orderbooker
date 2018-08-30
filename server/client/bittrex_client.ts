@@ -26,7 +26,7 @@ class BittrexClient extends ExchangeClient {
     }
 
     private mapOrder(order: any): Order {
-        return { exchange: "bittrex", quantity: order.Quantity, rate: order.Rate }
+        return { exchange: 'bittrex', quantity: order.Quantity, rate: order.Rate }
     }
 }
 

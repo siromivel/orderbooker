@@ -1,20 +1,5 @@
-import React, { Component } from "react";
-
-const chartSectionStyle = {
-    display: 'inline-block',
-    maxWidth: '50%',
-    minWidth: '50%'
-}
-
-const askStyle = {
-    color: 'red',
-    display: 'inline-block'
-}
-
-const bidStyle = {
-    color: 'green',
-    display: 'inline-block'
-}
+import React, { Component } from 'react';
+import './OrderBookComponentStyle.css';
 
 class OrderBook extends Component<{}, { orderbook: any }> {
     constructor(props: object) {
@@ -33,29 +18,27 @@ class OrderBook extends Component<{}, { orderbook: any }> {
     }
 
     render() {
-        console.log(this.state.orderbook);
         return (
             <div>
-                <div>
-                    {/* <h2>Ask</h2> */}
-                    <div style={askStyle}>
+                <div className="orderbook">
+                    <div className="asks">
                         {
                             Object.keys(this.state.orderbook.asks).map((rate: string) => {
-                                return <div>{rate} : {this.state.orderbook.asks[rate]} BTC</div>
+                                return <div className="orderbook-cell">
+                                    <div className="orderbook-value">{rate}</div>  <div className="orderbook-align">|</div> <div className="orderbook-value">{this.state.orderbook.asks[rate].toFixed(7)}</div> BTC
+                                </div>
                             }).reverse()
                         }
-                        {/* {this.state.orderbook.asks.map((ask: any) => {
-                            return <span>{`${ask.quantity} @ ${ask.rate}`} </span>
-                        })}     */}
                     </div>
                 </div>
 
                 <div>
-                    {/* <h2>Bid</h2> */}
-                    <div style={bidStyle}>
+                    <div className="bids">
                         {   
                             Object.keys(this.state.orderbook.bids).map((rate: string) => {
-                                return <div>{rate} : {this.state.orderbook.bids[rate]} BTC</div>
+                                return <div className="orderbook-cell">
+                                    <div className="orderbook-value">{rate}</div>  <div className="orderbook-align">|</div> <div className="orderbook-value">{this.state.orderbook.bids[rate].toFixed(7)}</div> BTC
+                                </div>
                             })
                         }
                         {/* {this.state.orderbook.bids.map((bid: any) => {
