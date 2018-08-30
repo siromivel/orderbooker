@@ -1,15 +1,27 @@
 .asks {
     color: red;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
 }
 
 .bids {
+    border-right: solid 5px #000;
     color: green;
+}
+
+.order-pane {
+    max-height: 100vh;
+    overflow: scroll;
+}
+
+.orderbook {
     display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
+    flex-direction: row;
+    height: 100vh;
+}
+
+.orderbook-column {
+    display: inline-block;
+    margin-right: 3rem;
+    width: 20%;
 }
 
 .orderbook-align {

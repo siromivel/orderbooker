@@ -21,26 +21,29 @@ class OrderBook extends Component<{}, { orderbook: any }> {
         return (
             <div>
                 <div className="orderbook">
-                    <div className="asks">
-                        {
-                            Object.keys(this.state.orderbook.asks).map((rate: string) => {
-                                return <div className="orderbook-cell">
-                                    <div className="orderbook-value">{rate}</div><div className="orderbook-align">|</div><div className="orderbook-value">{this.state.orderbook.asks[rate].toFixed(7)}</div> BTC
-                                </div>
-                            }).reverse()
-                        }
+                    <div className="orderbook-column">
+                        <h2 className="side-label">Bid</h2>
+                        <div className="order-pane bids">
+                            {   
+                                Object.keys(this.state.orderbook.bids).sort().map((rate: string) => {
+                                    return <div className="orderbook-cell">
+                                        <div className="orderbook-value">{rate}</div><div className="orderbook-align">|</div><div className="orderbook-value">{this.state.orderbook.bids[rate].toFixed(7)}</div> BTC
+                                    </div>
+                                }).reverse()
+                            }
+                        </div>
                     </div>
-                </div>
-
-                <div>
-                    <div className="bids">
-                        {   
-                            Object.keys(this.state.orderbook.bids).map((rate: string) => {
-                                return <div className="orderbook-cell">
-                                    <div className="orderbook-value">{rate}</div><div className="orderbook-align">|</div><div className="orderbook-value">{this.state.orderbook.bids[rate].toFixed(7)}</div> BTC
-                                </div>
-                            })
-                        }
+                    <div className="orderbook-column">
+                        <h2 className="side-label">Ask</h2>
+                        <div className="order-pane asks">
+                            {
+                                Object.keys(this.state.orderbook.asks).sort().map((rate: string) => {
+                                    return <div className="orderbook-cell">
+                                        <div className="orderbook-value">{rate}</div><div className="orderbook-align">|</div><div className="orderbook-value">{this.state.orderbook.asks[rate].toFixed(7)}</div> BTC
+                                    </div>
+                                })
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
