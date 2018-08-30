@@ -1,4 +1,5 @@
 import { ClientResponse } from "http";
+import { OrderBook } from "../api/orderbook";
 const https = require("https");
 
 "use strict";

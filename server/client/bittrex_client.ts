@@ -12,18 +12,21 @@ class BittrexClient extends ExchangeClient {
     }
 
     async getOrderBook(ticker = 'BTC-ETH'): Promise<OrderBook> {
-        let orderBookEndpoint = `${this.bittrexApiUrl}getorderbook?market=${ticker}&type=both`;
+        let orderBookEndpoint = `${this.bittrexApiUrl}getorderbook?market=${ticker}&type=both&depth=1000`;
 
         let bookData = await this.getExchangeData(orderBookEndpoint);
+        return this.mapBittrexBookDataToOrderBook(bookData.result);
+    }
+
+    private mapBittrexBookDataToOrderBook(orderBook: any): OrderBook {
         return {
-            exchange: "bittrex",
-            bids: bookData.result.buy.map(this.mapBittrexOrderDataToOrder),
-            asks: bookData.result.sell.map(this.mapBittrexOrderDataToOrder)
+            asks: orderBook.sell.map(this.mapOrder),
+            bids: orderBook.buy.map(this.mapOrder)
         }
     }
 
-    private mapBittrexOrderDataToOrder(order: any): Order {
-        return { quantity: order.Quantity, rate: order.Rate }
+    private mapOrder(order: any): Order {
+        return { exchange: "bittrex", quantity: order.Quantity, rate: order.Rate }
     }
 }
 

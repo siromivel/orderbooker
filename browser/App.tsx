@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import OrderBook from "./OrderBook";
+import OrderBook from "./OrderBookComponent";
 
 class App extends Component {
   constructor(props: object) {

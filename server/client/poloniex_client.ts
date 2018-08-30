@@ -15,15 +15,18 @@ class PoloniexClient extends ExchangeClient {
         let orderBookEndpoint = `${this.poloniexApiUrl}returnOrderBook&currencyPair=${ticker}&depth=100`;
 
         let bookData = await this.getExchangeData(orderBookEndpoint);
+        return this.mapPoloniexBookDataToOrderBook(bookData);
+    }
+
+    private mapPoloniexBookDataToOrderBook(orderBook: any): OrderBook {
         return {
-            exchange: "poloniex",
-            bids: bookData.bids.map(this.mapPoloniexOrderDataToOrder),
-            asks: bookData.asks.map(this.mapPoloniexOrderDataToOrder)
+            asks: orderBook.asks.map(this.mapOrder),
+            bids: orderBook.bids.map(this.mapOrder)
         }
     }
 
-    private mapPoloniexOrderDataToOrder(order: any): Order {
-        return { quantity: order[1], rate: +order[0] }
+    private mapOrder(order: any): Order {
+        return { exchange: "poloniex", quantity: order[1], rate: +order[0] }
     }
 }
 
