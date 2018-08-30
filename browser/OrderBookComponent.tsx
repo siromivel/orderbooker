@@ -25,7 +25,7 @@ class OrderBook extends Component<{}, { orderbook: any }> {
                         {
                             Object.keys(this.state.orderbook.asks).map((rate: string) => {
                                 return <div className="orderbook-cell">
-                                    <div className="orderbook-value">{rate}</div>  <div className="orderbook-align">|</div> <div className="orderbook-value">{this.state.orderbook.asks[rate].toFixed(7)}</div> BTC
+                                    <div className="orderbook-value">{rate}</div><div className="orderbook-align">|</div><div className="orderbook-value">{this.state.orderbook.asks[rate].toFixed(7)}</div> BTC
                                 </div>
                             }).reverse()
                         }
@@ -37,13 +37,10 @@ class OrderBook extends Component<{}, { orderbook: any }> {
                         {   
                             Object.keys(this.state.orderbook.bids).map((rate: string) => {
                                 return <div className="orderbook-cell">
-                                    <div className="orderbook-value">{rate}</div>  <div className="orderbook-align">|</div> <div className="orderbook-value">{this.state.orderbook.bids[rate].toFixed(7)}</div> BTC
+                                    <div className="orderbook-value">{rate}</div><div className="orderbook-align">|</div><div className="orderbook-value">{this.state.orderbook.bids[rate].toFixed(7)}</div> BTC
                                 </div>
                             })
                         }
-                        {/* {this.state.orderbook.bids.map((bid: any) => {
-                            return <span>{`${bid.quantity} @ ${bid.rate}`}</span>
-                        })} */}
                     </div>
                 </div>
             </div>
