@@ -1,0 +1,30 @@
+.asks {
+    color: red;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+
+.bids {
+    color: green;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+
+.orderbook-align {
+    color: #000;
+    flex-basis: 50px;
+    font-weight: bold;
+}
+
+.orderbook-cell {
+    display: flex;
+    flex-basis: 20px;
+    flex-direction: row;
+}
+
+.orderbook-value {
+    flex-basis: 100px;
+    display: flex;
+}
