@@ -1,11 +1,10 @@
 import { ClientResponse } from "http";
-import { OrderBook } from "../api/orderbook";
-const https = require("https");
+import https from "https";
 
 "use strict";
 
 abstract class ExchangeClient {
-    private async getExchangeData(endpoint: string): Promise<any> {
+    async getExchangeData(endpoint: string): Promise<any> {
         return new Promise<any>((resolve, reject) => {
             https.get(endpoint, (res: ClientResponse) => {
                 let blob = '';
@@ -25,4 +24,4 @@ abstract class ExchangeClient {
     }
 }
 
-module.exports = ExchangeClient;
+export default ExchangeClient;

@@ -6,7 +6,9 @@
   "scripts": {
     "bundle-dev": "./node_modules/.bin/webpack --mode development --display-error-details",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "app-dev": "npm run bundle-dev && ts-node server/server.ts"
+    "app-dev": "npm run bundle-dev && ts-node server/server.ts",
+    "polo-dev": "ts-node server/poloniex-scraper.ts",
+    "start-redis": "docker run --name orderbooker-redis -d redis"
   },
   "keywords": [],
   "author": "Levi Morris",
@@ -16,10 +18,14 @@
     "@types/node": "^10.9.2",
     "@types/react": "^16.4.12",
     "@types/react-dom": "^16.0.7",
+    "@types/redis": "^2.8.6",
+    "@types/ws": "^6.0.0",
     "body-parser": "^1.18.3",
     "express": "^4.16.3",
     "react": "^16.4.2",
-    "react-dom": "^16.4.2"
+    "react-dom": "^16.4.2",
+    "redis": "^2.8.0",
+    "ws": "^6.0.0"
   },
   "devDependencies": {
     "awesome-typescript-loader": "^5.2.0",

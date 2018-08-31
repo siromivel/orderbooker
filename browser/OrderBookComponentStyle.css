@@ -3,13 +3,13 @@
 }
 
 .bids {
-    border-right: solid 5px #000;
+    border-right: solid 5px #666;
     color: green;
 }
 
 .order-pane {
-    max-height: 100vh;
-    overflow: scroll;
+    max-height: 95vh;
+    overflow-y: scroll;
 }
 
 .orderbook {
@@ -39,4 +39,8 @@
 .orderbook-value {
     flex-basis: 100px;
     display: flex;
+}
+
+.side-label {
+    margin: 0.1rem 0 1rem;
 }
