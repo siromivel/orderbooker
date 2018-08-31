@@ -7,20 +7,11 @@ import { RedisClient } from 'redis';
 const signalR = require('signalr-client');
 
 class BittrexClient extends ExchangeClient {
-    bittrexApiUrl: string;
     redis: RedisClient;
 
-    constructor(bittrexApiUrl: string, redis: RedisClient) {
+    constructor(redis: RedisClient) {
         super();
-        this.bittrexApiUrl = `https://${bittrexApiUrl}/v1.1/public/`;
         this.redis = redis;
-    }
-
-    async getOrderBook(ticker = 'BTC-ETH'): Promise<OrderBook> {
-        const orderBookEndpoint = `${this.bittrexApiUrl}getorderbook?market=${ticker}&type=both&depth=1000`;
-
-        let bookData = await this.getExchangeData(orderBookEndpoint);
-        return this.mapBittrexBookDataToOrderBook(bookData.result);
     }
 
     async getOrderBookWebsocket(ticker = 'BTC-ETH') {
@@ -33,19 +24,85 @@ class BittrexClient extends ExchangeClient {
             connected: () => {
                 signalRClient.call('c2', 'QueryExchangeState', ticker).done((err: Error, result: any) => {
                     let debased = Buffer.from(result, 'base64');
-                    let resData;
 
-                    zlib.inflateRaw(debased, (err, bufferData) => {
+                    zlib.inflateRaw(debased, (err: Error|null, bufferData) => {
+                        if (err) return console.log(err);
                         try {
                             let parsed = JSON.parse(bufferData.toString());
-                            this.redis.set("trex_book", JSON.stringify(this.mapBittrexBookDataToOrderBook(parsed)));
+                            let mapped = this.mapBittrexBookDataToOrderBook(parsed);
+
+                            this.redis.set("trex_book", JSON.stringify(mapped), (err: Error|null) => {
+                                if (err) throw err;
+                                console.log("Successfully imported Bittrex orderbook");
+                            });
                         } catch(e) {
                             console.log(e);
                         }
                     });
                 });
+
+                signalRClient.call('c2', 'SubscribeToExchangeDeltas', ticker).done((err: Error, result: any) => {
+                    if (result === true) console.log('Subscribed to Bittrex data feed');
+                });
+            },
+            messageReceived: (message: any) => {
+                let debased = Buffer.from(message.utf8Data);
+                let data = JSON.parse(debased.toString());
+
+                if (data && data.M) {
+                    data.M.forEach((M: any) => {
+                        let d = Buffer.from(M.A[0], 'base64');
+
+                        zlib.inflateRaw(d, (err: Error|null, d: any) => {
+                            if (err) console.log(err);
+                            let parsed = JSON.parse(d.toString());
+                            this.updateOrderbook(parsed);
+                        });
+                    });
+                }
             }
         }
+    }
+
+    async getFromRedis(key: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            return this.redis.get(key, (err, val) => {
+                if (err) return reject(err);
+                try {
+                    let parsed = JSON.parse(val);
+                    return resolve(parsed);
+                } catch(e) {
+                    return reject(e);
+                }
+            });
+        });
+    }
+
+    private async updateOrderbook(payload: any) {
+        let orderbook = await this.getFromRedis('trex_book');
+
+        payload.Z.forEach((update: any) => {
+            let type = update.TY
+
+            switch(type) {
+                case 1:
+                    delete orderbook[update.R]
+                    break;
+
+                case 0:
+                case 2:
+                    orderbook[update.R] = update.Q
+                    break;
+
+                default:
+                    throw new Error("Unknown Bittrex update type");
+            }
+        });
+
+        this.redis.set("trex_book", JSON.stringify(orderbook), (err: Error|null) => {
+            if (err) throw err;
+            console.log("Updated Bittrex orderbook");
+        });
     }
 
     private mapBittrexBookDataToOrderBook(orderBook: any): OrderBook {
@@ -57,8 +114,8 @@ class BittrexClient extends ExchangeClient {
         }
 
         return {
-            asks: aggregateLevels(orderBook.Z),
-            bids: aggregateLevels(orderBook.S)
+            asks: aggregateLevels(orderBook.S),
+            bids: aggregateLevels(orderBook.Z)
         }
     }
 }

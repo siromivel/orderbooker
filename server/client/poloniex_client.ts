@@ -1,16 +1,12 @@
-import { Order } from '../api/order'
-import { OrderBook } from '../api/orderbook'
 import { RedisClient } from "redis";
 import ExchangeClient from '../client/exchange_client';
 import WebSocket, { Data } from 'ws';
 
 class PoloniexClient extends ExchangeClient {
-    poloniexApiUrl: string;
     redis: RedisClient;
 
-    constructor(poloniexApiUrl: string, redis: RedisClient) {
+    constructor(redis: RedisClient) {
         super();
-        this.poloniexApiUrl = `https://${poloniexApiUrl}`
         this.redis = redis;
     }
 
@@ -26,10 +22,15 @@ class PoloniexClient extends ExchangeClient {
     }
 
     private handleWebsocketOrderbookData(rawData: Array<any>) {
-        let bookData = rawData[2][0];
-        let dataType = bookData[0];
+        let bookData = [];
+        let channelId = 'x';
 
-        switch(dataType) {
+        if (rawData && rawData[2]) {
+            bookData = rawData[2][0];
+            channelId = bookData[0];
+        }
+
+        switch(channelId) {
             case 'i':
                 let rawOrderBook = {
                     rawAsks: bookData[1].orderBook[0],
@@ -37,23 +38,89 @@ class PoloniexClient extends ExchangeClient {
                 }
 
                 this.redis.set("polo_book", JSON.stringify(this.mapPoloniexBookDataToOrderBook(rawOrderBook)));
+                break;
+
+            case 'o':
+                this.updateOrderBookWithChange(bookData);
+                break;
+
+            case 't':
+                this.updateOrderBookWithTrade(bookData);
+                break;
+
+            case 'x':
+                console.log('invalid data');
+                break;
 
             default:
-                console.log("unknown data type");
-                console.log(bookData);
+                console.log(`unknown channel ID ${channelId}`);
         }
     }
 
-    // async getOrderBook(ticker = 'BTC_ETH'): Promise<OrderBook> {
-    //     let orderBookEndpoint = `${this.poloniexApiUrl}returnOrderBook&currencyPair=${ticker}&depth=100`;
+    async getFromRedis(key: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            return this.redis.get(key, (err, val) => {
+                if (err) return reject(err);
+                try {
+                    let parsed = JSON.parse(val);
+                    return resolve(parsed);
+                } catch(e) {
+                    return reject(e);
+                }
+            });
+        });
+    }
 
-    //     let bookData = await this.getExchangeData(orderBookEndpoint);
-    //     return this.mapPoloniexBookDataToOrderBook(bookData);
-    // }
+    private async updateOrderBookWithChange(payload: Array<any>) {
+        let orderbook = await this.getFromRedis('polo_book');
+        let updateType = payload[1];
+
+        if (updateType) {
+            if (+payload[2] === 0) {
+                delete orderbook.bids[payload[2]]
+            } else {
+                orderbook.bids[payload[2]] = +[payload[3]];
+            }
+        } else {
+            if (+payload[2] === 0) {
+                delete orderbook.asks[payload[2]]
+            } else {
+                orderbook.asks[payload[2]] = +[payload[3]];
+            }
+        }
+
+        this.redis.set("polo_book", JSON.stringify(orderbook), (err: Error|null) => {
+            if (err) throw err;
+            console.log("Updated Poloniex orderbook");
+        });
+    }
+
+    private async updateOrderBookWithTrade(payload: Array<any>) {
+        let orderbook = await this.getFromRedis('polo_book');
+        let updateType = payload[1];
+
+        if (updateType) {
+            if (orderbook.bids[payload[2]] - +payload[2] <= 0) {
+                delete orderbook.bids[payload[2]]
+            } else {
+                orderbook.bids[payload[2]] -= +[payload[3]];
+            }
+        } else {
+            if (orderbook.asks[payload[2]] - +payload[2] === 0) {
+                delete orderbook.asks[payload[2]]
+            } else {
+                orderbook.asks[payload[2]] -= +[payload[3]];
+            }
+        }
+
+        this.redis.set("polo_book", JSON.stringify(orderbook), (err: Error|null) => {
+            if (err) throw err;
+            console.log("Updated Poloniex orderbook");
+        });
+    }
 
     private mapPoloniexBookDataToOrderBook(orderBook: any): any {
         let aggregateLevels = (levels: any) => {
-
             return Object.keys(levels).reduce((levelMap: any, level: string) => {
                 levelMap[level] = +levels[level]
                 return levelMap;
@@ -65,10 +132,6 @@ class PoloniexClient extends ExchangeClient {
             bids: aggregateLevels(orderBook.rawBids)
         }
     }
-
-    // private mapBookLevel(order: any): Order {
-    //     return { exchange: 'poloniex', quantity: order[1], rate: +order[0] }
-    // }
 }
 
 export default PoloniexClient;

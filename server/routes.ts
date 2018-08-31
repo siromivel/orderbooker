@@ -16,46 +16,57 @@ module.exports = (app: Application, redis: RedisClient, bittrexClient: BittrexCl
     });
 
     app.get('/api/orderbook/bittrex', (req: Request, res: Response) => {
-        redis.get("trex_book", (err, val) => {
-            console.log(val);
-            err ? res.status(500).send(err) : res.status(200).send(JSON.parse(val))
-        });
-        // bittrexClient.getOrderBook().then((result: OrderBook) => {
-        //     res.status(200).send(result);
-        // });
+        getFromRedis('trex_book')
+            .then(book => res.status(200).send(book))
+            .catch(res.status(500).send)
     });
 
     app.get('/api/orderbook/poloniex', (req: Request, res: Response) => {
-        // poloniexClient.getOrderBook().then((result: OrderBook) => {
-        //     res.status(200).send(result);
-        // });
-        redis.get("polo_book", (err, val) => {
-            err ? res.status(500).send(err) : res.status(200).send(JSON.parse(val))
-        });
+        getFromRedis('polo_book')
+            .then(book => res.status(200).send(book))
+            .catch(res.status(500).send)
     });
 
-    // app.get('/api/orderbook/combined', (req: Request, res: Response) => {
-    //     let aggregateOrders = (orders: Order[]) => {
-    //         return orders.reduce((orderMap: any, order: Order) => {
-    //             let rate = (Math.ceil(order.rate * 100000) / 100000).toString();
-    //             orderMap[rate] = (orderMap[rate] || 0) + order.quantity;
-    //             return orderMap;
-    //         }, {})
-    //     }
+    async function getFromRedis(key: string) {
+        return new Promise((resolve, reject) => {
+            return redis.get(key, (err, val) => {
+                if (err) return reject(err);
+                try {
+                    let parsed = JSON.parse(val);
+                    return resolve(parsed);
+                } catch(e) {
+                    return reject(e);
+                }
+            });
+        });
+    }
 
-    //     Promise.all([bittrexClient.getOrderBook(), poloniexClient.getOrderBook()]).then((books) => {
-    //         let asks = books[0].asks.concat(books[1].asks);
-    //         let bids = books[0].bids.concat(books[1].bids);
+    async function getCombinedOrderBook() {
+        let bittrexBook  = await getFromRedis('trex_book');
+        let poloniexBook = await getFromRedis('polo_book');
 
-    //         let aggregatedBook = {
-    //             asks: aggregateOrders(asks),
-    //             bids: aggregateOrders(bids),
-    //         }
+        let combineBooks = (bookOne: any, bookTwo: any) => {
+            Object.keys(bookOne).forEach((side) => {
+                Object.keys(side).forEach((rate) => {
+                    if (bookOne[side][rate]) {
+                        bookOne[side][rate] += bookTwo[side][rate];
+                    } else {
+                        bookOne[side][rate] = bookTwo[side][rate];
+                    }
+                });
+            });
 
-    //         redis.set("orderbook", JSON.stringify((aggregatedBook)));
-    //         redis.get("orderbook", (err, val) => err ? res.status(500).send(err) : res.status(200).send(JSON.parse(val)));
-    //     });
-    // });
+            return bookOne;
+        }
+
+        return combineBooks(poloniexBook, bittrexBook);
+    }
+
+    app.get('/api/orderbook/combined', (req: Request, res: Response) => {
+        getCombinedOrderBook()
+            .then(book => res.status(200).send(book))
+            .catch(res.status(500).send)
+    });
 
     // app.get('/api/orderbook/stats', (req: Request, res: Response) => {
     //     Promise.all([bittrexClient.getOrderBook(), poloniexClient.getOrderBook()]).then((books) => {

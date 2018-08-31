@@ -2,7 +2,7 @@ import Redis from 'redis';
 import PoloniexClient from './client/poloniex_client';
 
 const redis = Redis.createClient("redis://localhost:6379");
-const poloniexClient = new PoloniexClient('poloniex.com/public?command=', redis);
+const poloniexClient = new PoloniexClient(redis);
 
 async function harvest() {
     console.log('Poloniex Scraper Running');
