@@ -25,6 +25,7 @@
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
     "redis": "^2.8.0",
+    "signalr-client": "0.0.18",
     "ws": "^6.0.0"
   },
   "devDependencies": {
