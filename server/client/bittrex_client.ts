@@ -2,15 +2,18 @@ import { Order } from '../api/order'
 import { OrderBook } from '../api/orderbook'
 import ExchangeClient from '../client/exchange_client';
 import zlib from 'zlib';
+import { RedisClient } from 'redis';
 
 const signalR = require('signalr-client');
 
 class BittrexClient extends ExchangeClient {
     bittrexApiUrl: string;
+    redis: RedisClient;
 
-    constructor(bittrexApiUrl: string) {
+    constructor(bittrexApiUrl: string, redis: RedisClient) {
         super();
         this.bittrexApiUrl = `https://${bittrexApiUrl}/v1.1/public/`;
+        this.redis = redis;
     }
 
     async getOrderBook(ticker = 'BTC-ETH'): Promise<OrderBook> {
@@ -35,7 +38,7 @@ class BittrexClient extends ExchangeClient {
                     zlib.inflateRaw(debased, (err, bufferData) => {
                         try {
                             let parsed = JSON.parse(bufferData.toString());
-                            console.log(parsed);
+                            this.redis.set("trex_book", JSON.stringify(this.mapBittrexBookDataToOrderBook(parsed)));
                         } catch(e) {
                             console.log(e);
                         }
@@ -46,14 +49,17 @@ class BittrexClient extends ExchangeClient {
     }
 
     private mapBittrexBookDataToOrderBook(orderBook: any): OrderBook {
-        return {
-            asks: orderBook.sell.map(this.mapOrder),
-            bids: orderBook.buy.map(this.mapOrder)
+        let aggregateLevels = (levels: Array<any>) => {
+            return levels.reduce((levelMap: any, level: any) => {
+                levelMap[level.R] = level.Q;
+                return levelMap;
+            }, {});
         }
-    }
 
-    private mapOrder(order: any): Order {
-        return { exchange: 'bittrex', quantity: order.Quantity, rate: order.Rate }
+        return {
+            asks: aggregateLevels(orderBook.Z),
+            bids: aggregateLevels(orderBook.S)
+        }
     }
 }
 

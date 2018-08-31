@@ -16,9 +16,13 @@ module.exports = (app: Application, redis: RedisClient, bittrexClient: BittrexCl
     });
 
     app.get('/api/orderbook/bittrex', (req: Request, res: Response) => {
-        bittrexClient.getOrderBook().then((result: OrderBook) => {
-            res.status(200).send(result);
+        redis.get("trex_book", (err, val) => {
+            console.log(val);
+            err ? res.status(500).send(err) : res.status(200).send(JSON.parse(val))
         });
+        // bittrexClient.getOrderBook().then((result: OrderBook) => {
+        //     res.status(200).send(result);
+        // });
     });
 
     app.get('/api/orderbook/poloniex', (req: Request, res: Response) => {
