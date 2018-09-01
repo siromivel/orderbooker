@@ -1,17 +1,10 @@
 import { Application, Request, Response } from "express";
-import { OrderBook } from "./api/orderbook";
-import { Order } from "./api/order";
 import { RedisClient } from "redis";
 
 import path from 'path';
 
-import BittrexClient from './client/bittrex_client';
-import PoloniexClient from './client/poloniex_client';
-
-module.exports = (app: Application, redis: RedisClient, bittrexClient: BittrexClient, poloniexClient: PoloniexClient) => {
+module.exports = (app: Application, redis: RedisClient) => {
     app.get('/', (req: Request, res: Response) => {
-        (async function() { await bittrexClient.getOrderBookWebsocket() })();
-
         res.sendFile(path.join(__dirname, '../browser/index.html'));
     });
 
@@ -67,19 +60,4 @@ module.exports = (app: Application, redis: RedisClient, bittrexClient: BittrexCl
             .then(book => res.status(200).send(book))
             .catch(res.status(500).send)
     });
-
-    // app.get('/api/orderbook/stats', (req: Request, res: Response) => {
-    //     Promise.all([bittrexClient.getOrderBook(), poloniexClient.getOrderBook()]).then((books) => {
-    //         let askBook = books[0].asks.concat(books[1].asks);
-    //         let bidBook = books[0].bids.concat(books[1].bids);
-
-    //         let totalAsks = askBook.reduce((sum = 0, order: Order) => sum + order.quantity, 0);
-    //         let totalBids = bidBook.reduce((sum = 0, order: Order) => sum + order.quantity, 0);
-
-    //         res.send({
-    //             totalAsks: totalAsks,
-    //             totalBids: totalBids
-    //         });
-    //     });
-    // });
 }

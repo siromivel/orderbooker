@@ -51,7 +51,7 @@ class PoloniexClient extends ExchangeClient {
                 break;
 
             case 'x':
-                console.log('invalid data');
+                console.log(`invalid data: ${rawData}`);
                 break;
 
             default:

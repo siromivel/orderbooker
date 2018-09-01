@@ -86,17 +86,35 @@ class BittrexClient extends ExchangeClient {
     }
 
     private async updateOrderbook(payload: any) {
+        payload.S.forEach((update: any) => {
+            let type = update.TY
+
+            switch(type) {
+                case 1:
+                    delete this.orderbook.asks[update.R];
+                    break;
+
+                case 0:
+                case 2:
+                    this.orderbook.asks[update.R] = update.Q
+                    break;
+
+                default:
+                    throw new Error("Unknown Bittrex update type");
+            }
+        });
+
         payload.Z.forEach((update: any) => {
             let type = update.TY
 
             switch(type) {
                 case 1:
-                    delete this.orderbook[update.R]
+                    delete this.orderbook.bids[update.R];
                     break;
 
                 case 0:
                 case 2:
-                    this.orderbook[update.R] = update.Q
+                    this.orderbook.bids[update.R] = update.Q
                     break;
 
                 default:
