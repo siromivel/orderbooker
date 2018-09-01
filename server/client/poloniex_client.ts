@@ -4,10 +4,12 @@ import WebSocket, { Data } from 'ws';
 
 class PoloniexClient extends ExchangeClient {
     redis: RedisClient;
+    orderbook: any;
 
     constructor(redis: RedisClient) {
         super();
         this.redis = redis;
+        this.orderbook = {};
     }
 
     async getOrderBookWebsocket(ticker = 'BTC_ETH') {
@@ -37,7 +39,7 @@ class PoloniexClient extends ExchangeClient {
                     rawBids: bookData[1].orderBook[1]
                 }
 
-                this.redis.set("polo_book", JSON.stringify(this.mapPoloniexBookDataToOrderBook(rawOrderBook)));
+                this.orderbook = this.mapPoloniexBookDataToOrderBook(rawOrderBook)
                 break;
 
             case 'o':
@@ -55,6 +57,8 @@ class PoloniexClient extends ExchangeClient {
             default:
                 console.log(`unknown channel ID ${channelId}`);
         }
+        console.log("updated polo");
+        this.redis.set("polo_book", JSON.stringify(this.orderbook));
     }
 
     async getFromRedis(key: string): Promise<any> {
@@ -72,51 +76,40 @@ class PoloniexClient extends ExchangeClient {
     }
 
     private async updateOrderBookWithChange(payload: Array<any>) {
-        let orderbook = await this.getFromRedis('polo_book');
         let updateType = payload[1];
-
+        
         if (updateType) {
-            if (+payload[2] === 0) {
-                delete orderbook.bids[payload[2]]
+            if (+payload[3] === 0) {
+                delete this.orderbook.bids[payload[2]]
             } else {
-                orderbook.bids[payload[2]] = +[payload[3]];
+                this.orderbook.bids[payload[2]] = +[payload[3]];
             }
         } else {
-            if (+payload[2] === 0) {
-                delete orderbook.asks[payload[2]]
+            if (+payload[3] === 0) {
+                delete this.orderbook.asks[payload[2]]
             } else {
-                orderbook.asks[payload[2]] = +[payload[3]];
+                this.orderbook.asks[payload[2]] = +[payload[3]];
             }
         }
-
-        this.redis.set("polo_book", JSON.stringify(orderbook), (err: Error|null) => {
-            if (err) throw err;
-            console.log("Updated Poloniex orderbook");
-        });
     }
 
     private async updateOrderBookWithTrade(payload: Array<any>) {
-        let orderbook = await this.getFromRedis('polo_book');
         let updateType = payload[1];
 
         if (updateType) {
-            if (orderbook.bids[payload[2]] - +payload[2] <= 0) {
-                delete orderbook.bids[payload[2]]
+            if (this.orderbook.bids[payload[2]] - +payload[3] <= 0) {
+                delete this.orderbook.bids[payload[2]]
             } else {
-                orderbook.bids[payload[2]] -= +[payload[3]];
+                this.orderbook.bids[payload[2]] -= +[payload[3]];
             }
         } else {
-            if (orderbook.asks[payload[2]] - +payload[2] === 0) {
-                delete orderbook.asks[payload[2]]
+            if (this.orderbook.asks[payload[2]] - +payload[3] === 0) {
+                delete this.orderbook.asks[payload[2]]
+                this.orderbook.bids[payload[2]]
             } else {
-                orderbook.asks[payload[2]] -= +[payload[3]];
+                this.orderbook.asks[payload[2]] -= +[payload[3]];
             }
         }
-
-        this.redis.set("polo_book", JSON.stringify(orderbook), (err: Error|null) => {
-            if (err) throw err;
-            console.log("Updated Poloniex orderbook");
-        });
     }
 
     private mapPoloniexBookDataToOrderBook(orderBook: any): any {
