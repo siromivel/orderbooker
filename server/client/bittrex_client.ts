@@ -86,41 +86,41 @@ class BittrexClient extends ExchangeClient {
     }
 
     private async updateOrderbook(payload: any) {
+        let processUpdate = (update: any, side: string) => {
+             let type = update.TY
+
+             switch(type) {
+                 case 1:
+                    delete this.orderbook[side][update.R]
+                    break;
+
+                 case 0:
+                 case 2:
+                    this.orderbook[side][update.R] = update.Q;
+                    break;
+
+                 default:
+                    console.log("Unknown Bittrex update type");
+             }
+        }
+
+        let processFill = (fill: any) => {
+            let side = fill.OT === 'BUY' ? 'asks' : 'bids';
+
+            this.orderbook[side][fill.R] -= fill.Q;
+        }
+
         payload.S.forEach((update: any) => {
-            let type = update.TY
+            processUpdate(update, 'asks');
+         });
 
-            switch(type) {
-                case 1:
-                    delete this.orderbook.asks[update.R];
-                    break;
+         payload.Z.forEach((update: any) => {
+            processUpdate(update, 'bids');
+         });
 
-                case 0:
-                case 2:
-                    this.orderbook.asks[update.R] = update.Q
-                    break;
-
-                default:
-                    throw new Error("Unknown Bittrex update type");
-            }
-        });
-
-        payload.Z.forEach((update: any) => {
-            let type = update.TY
-
-            switch(type) {
-                case 1:
-                    delete this.orderbook.bids[update.R];
-                    break;
-
-                case 0:
-                case 2:
-                    this.orderbook.bids[update.R] = update.Q
-                    break;
-
-                default:
-                    throw new Error("Unknown Bittrex update type");
-            }
-        });
+         payload.f.forEach((update: any) => {
+            processFill(update);
+         });
     }
 
     private mapBittrexBookDataToOrderBook(orderBook: any): OrderBook {

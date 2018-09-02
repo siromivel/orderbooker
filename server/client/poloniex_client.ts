@@ -105,7 +105,6 @@ class PoloniexClient extends ExchangeClient {
         } else {
             if (this.orderbook.asks[payload[2]] - +payload[3] === 0) {
                 delete this.orderbook.asks[payload[2]]
-                this.orderbook.bids[payload[2]]
             } else {
                 this.orderbook.asks[payload[2]] -= +[payload[3]];
             }
