@@ -1,0 +1,31 @@
+version: '3'
+services:
+  app:
+    build: ./
+    ports:
+      - "1420:1420"
+      - "6379"
+    links:
+      - "redis"
+  polo:
+    build: 
+      context: ./
+      dockerfile: ./Dockerfile-polo-scraper
+    ports: 
+      - "8080"
+      - "6379"
+    links:
+      - redis
+  trex:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile-trex-scraper
+    ports: 
+      - "8080"
+      - "6379"
+    links:
+      - redis
+  redis:
+    image: redis
+    expose: 
+       - "6379"
