@@ -13,3 +13,5 @@ Compile the project
 
 Build and start the services and main web server
 ```docker-compose up```
+
+Once the containers start you should be able to visit the app on localhost:1420
