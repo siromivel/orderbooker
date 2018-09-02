@@ -5,5 +5,14 @@
     "strict": true,
     "esModuleInterop": true,
     "jsx": "react"
-  }
+  },
+  "include": [
+    "server/*",
+    "server/**/*",
+    "browser/*"
+  ],
+  "exclude": [
+    "dist",
+    "node_modules"
+  ]
 }
