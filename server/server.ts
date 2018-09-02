@@ -7,7 +7,7 @@ import BittrexClient from './client/bittrex_client';
 import PoloniexClient from './client/poloniex_client';
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
-const redis = Redis.createClient("redis://localhost:6379");
+const redis = Redis.createClient("redis://redis:6379");
 
 const bittrexClient = new BittrexClient(redis);
 const poloniexClient = new PoloniexClient(redis);
