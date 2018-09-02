@@ -35,8 +35,10 @@ module.exports = (app: Application, redis: RedisClient) => {
     }
 
     async function getCombinedOrderBook() {
-        let bittrexBook  = await getFromRedis('trex_book');
-        let poloniexBook = await getFromRedis('polo_book');
+        let books = [getFromRedis('polo_book'), getFromRedis('trex_book')];
+
+        let poloBook = await books[0];
+        let trexBook = await books[1];
 
         let combineBooks = (bookOne: any, bookTwo: any) => {
             Object.keys(bookOne).forEach((side) => {
@@ -52,12 +54,12 @@ module.exports = (app: Application, redis: RedisClient) => {
             return bookOne;
         }
 
-        return combineBooks(poloniexBook, bittrexBook);
+        return combineBooks(poloBook, trexBook);
     }
 
     app.get('/api/orderbook/combined', (req: Request, res: Response) => {
         getCombinedOrderBook()
             .then(book => res.status(200).send(book))
-            .catch(res.status(500).send)
+            .catch(res.status(500).send);
     });
 }
