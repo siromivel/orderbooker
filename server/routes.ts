@@ -37,29 +37,36 @@ module.exports = (app: Application, redis: RedisClient) => {
     async function getCombinedOrderBook() {
         let books = [getFromRedis('polo_book'), getFromRedis('trex_book')];
 
-        let poloBook = await books[0];
-        let trexBook = await books[1];
+        let poloBook = await books[0] as any;
+        let trexBook = await books[1] as any;
 
-        let combineBooks = (bookOne: any, bookTwo: any) => {
-            Object.keys(bookOne).forEach((side) => {
-                Object.keys(side).forEach((rate) => {
-                    if (bookOne[side][rate]) {
-                        bookOne[side][rate] += bookTwo[side][rate];
-                    } else {
-                        bookOne[side][rate] = bookTwo[side][rate];
-                    }
+        trexBook.exchange = 'bittrex';
+        poloBook.exchange = 'poloniex';
+
+        books = [poloBook, trexBook];
+
+        let combineBooks = (books: Array<any>) => {
+            return books.reduce((combinedBook: any, book: any) => {
+                ['asks', 'bids'].forEach((side) => {
+                    Object.keys(book[side]).forEach((rate) => {
+                        if (!combinedBook[side][rate]) {
+                            combinedBook[side][rate] = {} as any;
+                        }
+
+                        combinedBook[side][rate][book.exchange] = book[side][rate];
+                    });
                 });
-            });
-
-            return bookOne;
+                return combinedBook;
+            }, { asks: {}, bids: {} });
         }
-
-        return combineBooks(poloBook, trexBook);
+        return combineBooks(books);
     }
 
     app.get('/api/orderbook/combined', (req: Request, res: Response) => {
-        getCombinedOrderBook()
-            .then(book => res.status(200).send(book))
-            .catch(res.status(500).send);
+        getCombinedOrderBook().then((combinedBook) => {
+            return res.status(200).send(combinedBook);
+        }).catch((err) => {
+            return res.status(500).send(err);
+        });
     });
 }
