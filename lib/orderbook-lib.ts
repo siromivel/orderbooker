@@ -31,7 +31,7 @@ export default {
     mapBittrexOrderbookData(orderbookData: any) {
         let aggregateLevels = (levels: Array<any>) => {
             return levels.reduce((levelMap: any, level: any) => {
-                levelMap[level.R] = level.Q;
+                levelMap[level.R] = +level.Q;
                 return levelMap;
             }, {});
         }
@@ -47,7 +47,7 @@ export default {
         if (orderbook[side][fill.R] - fill.Q <= 0) {
             delete orderbook[side][fill.R];
         } else {
-            orderbook[side][fill.R] -= fill.Q;
+            orderbook[side][fill.R] -= +fill.Q;
         }
 
         return orderbook;
@@ -62,7 +62,7 @@ export default {
 
             case 0:
             case 2:
-               orderbook[side][update.R] = update.Q;
+               orderbook[side][update.R] = +update.Q;
                break;
 
             default:
@@ -88,16 +88,16 @@ export default {
         let updateType = payload[1];
 
         if (updateType) {
-            if (orderbook.bids[payload[2]] - +payload[3] <= 0) {
-                delete orderbook.bids[payload[2]]
-            } else {
-                orderbook.bids[payload[2]] -= +[payload[3]];
-            }
-        } else {
-            if (orderbook.asks[payload[2]] - +payload[3] === 0) {
+            if (orderbook.asks[payload[2]] - +payload[3] <= 0) {
                 delete orderbook.asks[payload[2]]
             } else {
                 orderbook.asks[payload[2]] -= +[payload[3]];
+            }
+        } else {
+            if (orderbook.bids[payload[2]] - +payload[3] === 0) {
+                delete orderbook.bids[payload[2]]
+            } else {
+                orderbook.bids[payload[2]] -= +[payload[3]];
             }
         }
 
