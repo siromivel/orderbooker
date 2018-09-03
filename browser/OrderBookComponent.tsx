@@ -9,13 +9,17 @@ class OrderBook extends Component<{}, { orderbook: any }> {
         this.state = { orderbook: { asks: {}, bids: {} } };
     }
 
+    fetchOrderbook() {
+
+    }
+
     componentDidMount() {
-        this.refreshInterval = setInterval(
-            fetch('http://localhost:1420/api/orderbook/combined')
-            .then(response => response.json())
-            .then(orderbook => this.setState({ orderbook: orderbook }))
-            .then(() => console.log("BOOM"))
-        );
+        this.refreshInterval = setInterval(() => {
+            return fetch('http://localhost:1420/api/orderbook/combined')
+                .then(response => response.json())
+                .then(orderbook => { return this.setState({ orderbook: orderbook }) });
+        }
+        , 2000);
     }
 
     componentWillUnmount() {
