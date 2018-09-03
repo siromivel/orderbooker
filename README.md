@@ -16,7 +16,7 @@ Assuming you are running a Node environment, install typescript and tsc if you d
 Compile the project
 ```tsc --project tsconfig.json```
 
-Build and start the services and main web server
+Build and start the services and main web server using docker
 ```docker-compose up```
 
 Once the containers start you should be able to visit the app on localhost:1420
