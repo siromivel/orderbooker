@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import Redis from 'redis';
 
 import app from "./app";
@@ -16,6 +17,7 @@ redis.on('error', (err: Error) => {
     console.log("Redis Error: " + err);
 })
 
+app.use(cors());
 app.use(express.static('dist'));
 require('./routes')(app, redis, bittrexClient, poloniexClient);
 
