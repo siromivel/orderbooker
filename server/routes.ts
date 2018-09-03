@@ -2,6 +2,7 @@ import { Application, Request, Response } from "express";
 import { RedisClient } from "redis";
 
 import path from 'path';
+import orderbookLib from '../lib/orderbook-lib'
 
 module.exports = (app: Application, redis: RedisClient) => {
     app.get('/', (req: Request, res: Response) => {
@@ -35,7 +36,10 @@ module.exports = (app: Application, redis: RedisClient) => {
     }
 
     async function getCombinedOrderBook() {
-        let books = [getFromRedis('polo_book'), getFromRedis('trex_book')];
+        let books = [
+            getFromRedis('polo_book'),
+            getFromRedis('trex_book')
+        ];
 
         let poloBook = await books[0] as any;
         let trexBook = await books[1] as any;
@@ -45,21 +49,7 @@ module.exports = (app: Application, redis: RedisClient) => {
 
         books = [poloBook, trexBook];
 
-        let combineBooks = (books: Array<any>) => {
-            return books.reduce((combinedBook: any, book: any) => {
-                ['asks', 'bids'].forEach((side) => {
-                    Object.keys(book[side]).forEach((rate) => {
-                        if (!combinedBook[side][rate]) {
-                            combinedBook[side][rate] = {} as any;
-                        }
-
-                        combinedBook[side][rate][book.exchange] = book[side][rate];
-                    });
-                });
-                return combinedBook;
-            }, { asks: {}, bids: {} });
-        }
-        return combineBooks(books);
+        return orderbookLib.combineBooks(books);
     }
 
     app.get('/api/orderbook/combined', (req: Request, res: Response) => {

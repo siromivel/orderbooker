@@ -7,6 +7,7 @@
     "bundle-dev": "./node_modules/.bin/webpack --mode development --display-error-details",
     "test": "echo \"Error: no test specified\" && exit 1",
     "app-dev": "npm run bundle-dev && ts-node server/server.ts",
+    "run-app": "npm run bundle-dev && tsc --project tsconfig.json && docker-compose up --build -d",
     "polo-dev": "ts-node server/poloniex-scraper.ts",
     "trex-dev": "ts-node server/bittrex-scraper.ts",
     "start-redis": "docker run --name orderbooker-redis -d redis"

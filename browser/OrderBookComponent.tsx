@@ -7,14 +7,56 @@ class OrderBook extends Component<{}, { orderbook: any }> {
         this.state = { orderbook: { asks: {}, bids: {} } };
     }
 
-    aggregateOrders(orders: Array<any>, granularity: number) {
-        
-    }
-
     componentDidMount() {
         fetch('http://localhost:1420/api/orderbook/combined')
           .then(response => response.json())
           .then(orderbook => this.setState({ orderbook: orderbook }));
+    }
+
+    tallyOrderbookSide(side: any) {
+        return Object.keys(side).reduce((sum, entry: any) => {
+            return sum += +side[entry].total
+        }, 0);
+    }
+
+    renderExchangeInfo(trexVolume: number, poloVolume: number) {
+        return (
+                <div className="orderbook-value orderbook-exchange-info">
+                    {this.renderExchange('Bittrex', trexVolume)}
+                    {this.renderExchange('Poloniex', poloVolume)}
+                </div>
+            )
+    }
+
+    renderExchange(exchange: string, volume: number) {
+        if(volume) {
+            return (
+                <div className="orderbook-exchange-quantity">{exchange}: {volume.toPrecision(8)}</div>
+            )
+        }
+    }
+
+    renderSide(side: any) {
+        return (
+            Object.keys(side).map((rate, i) => {
+                let orderbookAtRate = side[rate];
+                let poloVolume = 0;
+                let trexVolume = 0;
+
+                if (orderbookAtRate['poloniex']) {
+                    poloVolume += orderbookAtRate['poloniex'];
+                }
+
+                if (orderbookAtRate['bittrex']) {
+                    trexVolume += orderbookAtRate['bittrex'];
+                }
+
+                return <div key={i} className="orderbook-cell">
+                    <div className="orderbook-value orderbook-rate">{rate}</div><div className="orderbook-value orderbook-quantity">{orderbookAtRate.total.toPrecision(8)} ETH</div>
+                    { this.renderExchangeInfo(trexVolume, poloVolume) }
+                </div>
+            })
+        )
     }
 
     render() {
@@ -25,25 +67,19 @@ class OrderBook extends Component<{}, { orderbook: any }> {
                         <h2 className="side-label">Bid</h2>
                         <div className="order-pane bids">
                             {
-                                Object.keys(this.state.orderbook.bids).sort().map((rate: string) => {
-                                    return <div className="orderbook-cell">
-                                        <div className="orderbook-value">{rate}</div><div className="orderbook-align">|</div><div className="orderbook-value">{this.state.orderbook.bids[rate].toFixed(7)}</div> ETH
-                                    </div>
-                                }).reverse()
+                                this.renderSide(this.state.orderbook.bids)
                             }
                         </div>
+                        <div className="orderbook-total">Total Bids: { this.tallyOrderbookSide(this.state.orderbook.bids) } ETH</div>
                     </div>
                     <div className="orderbook-column">
                         <h2 className="side-label">Ask</h2>
                         <div className="order-pane asks">
                             {
-                                Object.keys(this.state.orderbook.asks).sort().map((rate: string) => {
-                                    return <div className="orderbook-cell">
-                                        <div className="orderbook-value">{rate}</div><div className="orderbook-align">|</div><div className="orderbook-value">{this.state.orderbook.asks[rate].toFixed(7)}</div> ETH
-                                    </div>
-                                })
+                                this.renderSide(this.state.orderbook.asks).reverse()
                             }
                         </div>
+                        <div className="orderbook-total">Total Asks: { this.tallyOrderbookSide(this.state.orderbook.asks) } ETH</div>
                     </div>
                 </div>
             </div>

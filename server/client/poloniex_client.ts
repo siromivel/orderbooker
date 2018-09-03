@@ -1,6 +1,7 @@
 import { RedisClient } from "redis";
 import ExchangeClient from '../client/exchange_client';
-import WebSocket, { Data } from 'ws';
+import WebSocket from 'ws';
+import orderbookLib from "../../lib/orderbook-lib";
 
 class PoloniexClient extends ExchangeClient {
     redis: RedisClient;
@@ -39,15 +40,15 @@ class PoloniexClient extends ExchangeClient {
                     rawBids: bookData[1].orderBook[1]
                 }
 
-                this.orderbook = this.mapPoloniexBookDataToOrderBook(rawOrderBook)
+                this.orderbook = orderbookLib.mapPoloniexOrderbookData(rawOrderBook)
                 break;
 
             case 'o':
-                this.updateOrderBookWithChange(bookData);
+                this.orderbook = orderbookLib.processPoloniexUpdate(this.orderbook, bookData);
                 break;
 
             case 't':
-                this.updateOrderBookWithTrade(bookData);
+                this.orderbook = orderbookLib.processPoloniexFill(this.orderbook, bookData);
                 break;
 
             case 'x':
@@ -73,56 +74,6 @@ class PoloniexClient extends ExchangeClient {
                 }
             });
         });
-    }
-
-    private async updateOrderBookWithChange(payload: Array<any>) {
-        let updateType = payload[1];
-        
-        if (updateType) {
-            if (+payload[3] === 0) {
-                delete this.orderbook.bids[payload[2]]
-            } else {
-                this.orderbook.bids[payload[2]] = +[payload[3]];
-            }
-        } else {
-            if (+payload[3] === 0) {
-                delete this.orderbook.asks[payload[2]]
-            } else {
-                this.orderbook.asks[payload[2]] = +[payload[3]];
-            }
-        }
-    }
-
-    private async updateOrderBookWithTrade(payload: Array<any>) {
-        let updateType = payload[1];
-
-        if (updateType) {
-            if (this.orderbook.bids[payload[2]] - +payload[3] <= 0) {
-                delete this.orderbook.bids[payload[2]]
-            } else {
-                this.orderbook.bids[payload[2]] -= +[payload[3]];
-            }
-        } else {
-            if (this.orderbook.asks[payload[2]] - +payload[3] === 0) {
-                delete this.orderbook.asks[payload[2]]
-            } else {
-                this.orderbook.asks[payload[2]] -= +[payload[3]];
-            }
-        }
-    }
-
-    private mapPoloniexBookDataToOrderBook(orderBook: any): any {
-        let aggregateLevels = (levels: any) => {
-            return Object.keys(levels).reduce((levelMap: any, level: string) => {
-                levelMap[level] = +levels[level]
-                return levelMap;
-            }, {});
-        }
-
-        return {
-            asks: aggregateLevels(orderBook.rawAsks),
-            bids: aggregateLevels(orderBook.rawBids)
-        }
     }
 }
 

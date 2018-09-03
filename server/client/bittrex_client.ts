@@ -1,8 +1,8 @@
-import { Order } from '../api/order'
 import { OrderBook } from '../api/orderbook'
 import ExchangeClient from '../client/exchange_client';
 import zlib from 'zlib';
 import { RedisClient } from 'redis';
+import orderbookLib from '../../lib/orderbook-lib';
 
 const signalR = require('signalr-client');
 
@@ -31,7 +31,7 @@ class BittrexClient extends ExchangeClient {
                         if (err) return console.log(err);
                         try {
                             let parsed = JSON.parse(bufferData.toString());
-                            this.orderbook = this.mapBittrexBookDataToOrderBook(parsed);
+                            this.orderbook = orderbookLib.mapBittrexOrderbookData(parsed);
 
                             this.redis.set("trex_book", JSON.stringify(this.orderbook), (err: Error|null) => {
                                 if (err) throw err;
@@ -71,70 +71,18 @@ class BittrexClient extends ExchangeClient {
         }
     }
 
-    async getFromRedis(key: string): Promise<any> {
-        return new Promise((resolve, reject) => {
-            return this.redis.get(key, (err, val) => {
-                if (err) return reject(err);
-                try {
-                    let parsed = JSON.parse(val);
-                    return resolve(parsed);
-                } catch(e) {
-                    return reject(e);
-                }
-            });
-        });
-    }
-
-    private async updateOrderbook(payload: any) {
-        let processUpdate = (update: any, side: string) => {
-             let type = update.TY
-
-             switch(type) {
-                 case 1:
-                    delete this.orderbook[side][update.R]
-                    break;
-
-                 case 0:
-                 case 2:
-                    this.orderbook[side][update.R] = update.Q;
-                    break;
-
-                 default:
-                    console.log("Unknown Bittrex update type");
-             }
-        }
-
-        let processFill = (fill: any) => {
-            let side = fill.OT === 'BUY' ? 'asks' : 'bids';
-
-            this.orderbook[side][fill.R] -= fill.Q;
-        }
-
+    private updateOrderbook(payload: any) {
         payload.S.forEach((update: any) => {
-            processUpdate(update, 'asks');
+            this.orderbook = orderbookLib.processBittrexUpdate(this.orderbook, update, 'asks')
          });
 
          payload.Z.forEach((update: any) => {
-            processUpdate(update, 'bids');
+            this.orderbook = orderbookLib.processBittrexUpdate(this.orderbook, update, 'bids')
          });
 
          payload.f.forEach((update: any) => {
-            processFill(update);
+             this.orderbook = orderbookLib.processBittrexFill(this.orderbook, update);
          });
-    }
-
-    private mapBittrexBookDataToOrderBook(orderBook: any): OrderBook {
-        let aggregateLevels = (levels: Array<any>) => {
-            return levels.reduce((levelMap: any, level: any) => {
-                levelMap[level.R] = level.Q;
-                return levelMap;
-            }, {});
-        }
-
-        return {
-            asks: aggregateLevels(orderBook.S),
-            bids: aggregateLevels(orderBook.Z)
-        }
     }
 }
 

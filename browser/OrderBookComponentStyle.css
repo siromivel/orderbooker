@@ -1,27 +1,34 @@
 .asks {
-    color: red;
+    color: #ed3f5c;
+    border-left: 2.5px solid #666;
 }
 
 .bids {
-    border-right: solid 5px #666;
-    color: green;
+    color: #1ea03a;
 }
 
 .order-pane {
-    max-height: 95vh;
+    border-bottom: 2.5px solid #666;
+    max-height: 90%;
     overflow-y: scroll;
+}
+
+.orderbook-cell:last-child {
+    border-bottom: none;
 }
 
 .orderbook {
     display: flex;
     flex-direction: row;
-    height: 100vh;
+    height: 95vh;
+    width: 50vw;
+    border: 2.5px solid #666;
 }
 
 .orderbook-column {
     display: inline-block;
-    margin-right: 3rem;
-    width: 20%;
+    max-height: 95%;
+    width: 50%;
 }
 
 .orderbook-align {
@@ -31,16 +38,42 @@
 }
 
 .orderbook-cell {
+    border-bottom: 2.5px solid #666;
     display: flex;
     flex-basis: 20px;
     flex-direction: row;
+    height: 2rem;
+}
+
+.orderbook-exchange-info {
+    color: #000;
+    flex-basis: 260px;
+    font-size: 10px;
+}
+
+.orderbook-rate {
+    flex-basis: 200px;
+}
+
+.orderbook-quantity {
+    flex-basis: 300px;
+}
+
+.orderbook-total {
+    padding-left: 0.5rem;
 }
 
 .orderbook-value {
-    flex-basis: 100px;
+    border-right: 2.5px solid #666;
     display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-left: 0.5rem;
 }
 
 .side-label {
-    margin: 0.1rem 0 1rem;
+    margin: 0.5rem 0 0;
+    padding-bottom: 0.5rem;
+    padding-left: 0.5rem;
+    border-bottom: 2.5px solid #666;
 }
