@@ -4,6 +4,9 @@ Produces a combined orderbook for bittrex and poloniex.
 
 Currently live on http://ec2-18-212-93-59.compute-1.amazonaws.com:1420/
 
+## Run Tests
+`npm test`
+
 ## Build & Run
 
 Assuming you are running a Node environment, install typescript and tsc if you don't already have them
