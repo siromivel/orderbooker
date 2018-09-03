@@ -3,23 +3,21 @@ import './OrderBookComponentStyle.css';
 
 class OrderBook extends Component<{}, { orderbook: any }> {
     refreshInterval: any;
+    target: string;
 
     constructor(props: object) {
         super(props);
         this.state = { orderbook: { asks: {}, bids: {} } };
-    }
-
-    fetchOrderbook() {
-
+        this.target = 'http://ec2-18-212-93-59.compute-1.amazonaws.com:1420/api';
     }
 
     componentDidMount() {
         this.refreshInterval = setInterval(() => {
-            return fetch('http://localhost:1420/api/orderbook/combined')
+            return fetch(this.target + '/orderbook/combined')
                 .then(response => response.json())
                 .then(orderbook => { return this.setState({ orderbook: orderbook }) });
         }
-        , 2000);
+        , 1000);
     }
 
     componentWillUnmount() {
