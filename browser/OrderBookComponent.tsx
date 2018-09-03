@@ -2,15 +2,24 @@ import React, { Component } from 'react';
 import './OrderBookComponentStyle.css';
 
 class OrderBook extends Component<{}, { orderbook: any }> {
+    refreshInterval: any;
+
     constructor(props: object) {
         super(props);
         this.state = { orderbook: { asks: {}, bids: {} } };
     }
 
     componentDidMount() {
-        fetch('http://localhost:1420/api/orderbook/combined')
-          .then(response => response.json())
-          .then(orderbook => this.setState({ orderbook: orderbook }));
+        this.refreshInterval = setInterval(
+            fetch('http://localhost:1420/api/orderbook/combined')
+            .then(response => response.json())
+            .then(orderbook => this.setState({ orderbook: orderbook }))
+            .then(() => console.log("BOOM"))
+        );
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.refreshInterval);
     }
 
     tallyOrderbookSide(side: any) {

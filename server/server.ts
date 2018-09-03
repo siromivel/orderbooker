@@ -2,7 +2,7 @@ import express from 'express';
 import Redis from 'redis';
 
 import app from "./app";
-import env from "./config";
+import env from "./config.dev";
 import BittrexClient from './client/bittrex_client';
 import PoloniexClient from './client/poloniex_client';
 
