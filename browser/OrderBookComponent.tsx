@@ -17,7 +17,7 @@ class OrderBook extends Component<{}, { orderbook: any }> {
                 .then(response => response.json())
                 .then(orderbook => { return this.setState({ orderbook: orderbook }) });
         }
-        , 1000);
+        , 2000);
     }
 
     componentWillUnmount() {
