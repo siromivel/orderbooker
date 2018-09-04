@@ -123,12 +123,21 @@ export default {
             if (+payload[3] === 0) {
                 delete orderbook.bids[payload[2]]
             } else {
+                let topAsk = Object.keys(orderbook.asks).sort((m, n) => +m - +n)[0];
+
+                if (+topAsk <= +payload[3]) {
+                    throw new Error("Bad Poloniex Data Detected");
+                }
                 orderbook.bids[payload[2]] = +[payload[3]];
             }
         } else {
             if (+payload[3] === 0) {
                 delete orderbook.asks[payload[2]]
             } else {
+                let topBid = Object.keys(orderbook.asks).sort((m, n) => +m - +n)[0];
+                if (+topBid >= +payload[3]) {
+                    throw new Error("Bad Poloniex Data Detected");
+                }
                 orderbook.asks[payload[2]] = +[payload[3]];
             }
         }

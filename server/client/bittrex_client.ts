@@ -47,6 +47,14 @@ class BittrexClient extends ExchangeClient {
                     if (result === true) console.log('Subscribed to Bittrex data feed');
                 });
             },
+            disconnected: () => {
+                console.log('Lost connection to Bittrex - reconnecting');
+                signalRClient.start();
+            },
+            onerror: (err: Error) => {
+                console.log("Websocket Error: " + err.message);
+                process.exit(1);
+            },
             messageReceived: (message: any) => {
                 let debased = Buffer.from(message.utf8Data);
                 let data = JSON.parse(debased.toString());

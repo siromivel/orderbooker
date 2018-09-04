@@ -22,6 +22,7 @@ class PoloniexClient extends ExchangeClient {
             let parsed  = JSON.parse(data);
             this.handleWebsocketOrderbookData(parsed);
         });
+        ws.on('close', () => process.exit(1));
     }
 
     private handleWebsocketOrderbookData(rawData: Array<any>) {
@@ -44,7 +45,12 @@ class PoloniexClient extends ExchangeClient {
                 break;
 
             case 'o':
-                this.orderbook = orderbookLib.processPoloniexUpdate(this.orderbook, bookData);
+                try {
+                    this.orderbook = orderbookLib.processPoloniexUpdate(this.orderbook, bookData);
+                } catch(err) {
+                    console.log(err.message + " - Restarting");
+                    process.exit(1);
+                }
                 break;
 
             case 't':
