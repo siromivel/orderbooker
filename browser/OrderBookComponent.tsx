@@ -63,7 +63,8 @@ class OrderBook extends Component<{}, { orderbook: any }> {
                 }
 
                 return <div key={i} className="orderbook-cell">
-                    <div className="orderbook-value orderbook-rate">{rate}</div><div className="orderbook-value orderbook-quantity">{orderbookAtRate.total.toPrecision(8)} ETH</div>
+                    <div className={"orderbook-value orderbook-rate" + (orderbookAtRate.overlap ? 'orderbook-overlap' : '')}>{rate}</div>
+                    <div className="orderbook-value orderbook-quantity">{orderbookAtRate.total.toPrecision(8)} ETH</div>
                     { this.renderExchangeInfo(trexVolume, poloVolume) }
                 </div>
             })

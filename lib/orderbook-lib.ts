@@ -15,15 +15,25 @@ export default {
             return combinedBook;
         }, { asks: {}, bids: {} });
 
+        console.log(combined);
+
+        let sortNumericKeys = (h: object) => Object.keys(h).sort((m: string, n: string) => +m - +n); 
+        let sortedAskKeys = sortNumericKeys(combined.asks);
+        let sortedBidKeys = sortNumericKeys(combined.bids);
+        let lastBid = sortedBidKeys.length - 1;
+
         let sorted = { asks: {}, bids: {}} as any;
-        Object.keys(combined.asks).sort((n: any, m: any) => m - n).forEach(key => {
+
+        sortedAskKeys.forEach(key => {
             if (combined.asks[key] === 0) return;
             sorted.asks[key] = combined.asks[key];
+            sorted.asks[key].overlap = sortedBidKeys[lastBid] >= key;
         });
 
-        Object.keys(combined.bids).sort((n: any, m: any) => m - n).forEach(key => {
+        sortedBidKeys.forEach(key => {
             if (combined.bids[key] === 0) return;
             sorted.bids[key] = combined.bids[key];
+            sorted.bids[key].overlap = sortedAskKeys[0] <= key;
         });
 
         return sorted;

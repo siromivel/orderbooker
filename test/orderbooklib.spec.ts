@@ -2,6 +2,96 @@ import { expect } from 'chai';
 import orderbookLib from '../lib/orderbook-lib';
 
 describe('orderbookLib', () => {
+    describe('combineOrderbook', () => {
+        it('generates a combined orderbook', () => {
+            let poloBook = {
+                asks: {
+                    '0.170': 3.50,
+                    '0.150': 99
+                },
+                bids: {
+                    '0.1499': 350,
+                    '0.080': 0.99
+                },
+                exchange: 'poloniex'
+            };
+
+            let trexBook = {
+                asks: {
+                    '0.171': 3.75,
+                    '0.155': 999
+                },
+                bids: {
+                    '0.1487': 9001,
+                    '0.070': 240
+                },
+                exchange: 'bittrex'
+            }
+
+            let expected = {
+                asks: {
+                    '0.170': { total: 3.50, poloniex: 3.50, overlap: false },
+                    '0.171': { total: 3.75, bittrex: 3.75, overlap: false },
+                    '0.155': { total: 999, bittrex: 999, overlap: false },
+                    '0.150': { total: 99, poloniex: 99, overlap: false }
+                },
+                bids: {
+                    '0.1499': { total: 350, poloniex: 350, overlap: false },
+                    '0.1487': { total: 9001, bittrex: 9001, overlap: false },
+                    '0.080': { total: 0.99, poloniex: 0.99, overlap: false },
+                    '0.070': { total: 240, bittrex: 240, overlap: false }
+                }
+            }
+
+            let orderbook = orderbookLib.combineBooks([poloBook, trexBook]);
+            expect(orderbook).to.deep.equal(expected)
+        });
+
+        it('flags overlapping orders', () => {
+            let poloBook = {
+                asks: {
+                    '0.170': 3.50,
+                    '0.150': 99
+                },
+                bids: {
+                    '0.1499': 350,
+                    '0.080': 0.99
+                },
+                exchange: 'poloniex'
+            };
+
+            let trexBook = {
+                asks: {
+                    '0.171': 3.75,
+                    '0.155': 999
+                },
+                bids: {
+                    '0.151': 9001,
+                    '0.070': 240
+                },
+                exchange: 'bittrex'
+            }
+
+            let expected = {
+                asks: {
+                    '0.170': { total: 3.50, poloniex: 3.50, overlap: false },
+                    '0.171': { total: 3.75, bittrex: 3.75, overlap: false },
+                    '0.155': { total: 999, bittrex: 999, overlap: false },
+                    '0.150': { total: 99, poloniex: 99, overlap: true }
+                },
+                bids: {
+                    '0.1499': { total: 350, poloniex: 350, overlap: false },
+                    '0.151': { total: 9001, bittrex: 9001, overlap: true },
+                    '0.080': { total: 0.99, poloniex: 0.99, overlap: false },
+                    '0.070': { total: 240, bittrex: 240, overlap: false }
+                }
+            }
+
+            let orderbook = orderbookLib.combineBooks([poloBook, trexBook]);
+            expect(orderbook).to.deep.equal(expected)
+        });
+    });
+
     it('parses raw bittrex book data', () => {
         let rawTrexBook = {
             S: [
