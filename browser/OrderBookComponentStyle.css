@@ -46,6 +46,10 @@
     height: 2rem;
 }
 
+.orderbook-overlap {
+    background-color: #999;
+}
+
 .orderbook-value.orderbook-exchange-info {
     color: #000;
     flex-basis: 260px;
