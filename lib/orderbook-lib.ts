@@ -3,12 +3,15 @@ export default {
         let combined = books.reduce((combinedBook: any, book: any) => {
             ['asks', 'bids'].forEach((side) => {
                 Object.keys(book[side]).forEach((rate: string) => {
+                    let paddedRate = rate;
+                    while (paddedRate.length < 10) paddedRate += '0';
+
                     if (book[side][rate]) {
-                        if (!combinedBook[side][rate]) {
-                            combinedBook[side][rate] = { total: 0 };
+                        if (!combinedBook[side][paddedRate]) {
+                            combinedBook[side][paddedRate] = { total: 0 };
                         }
-                        combinedBook[side][rate][book.exchange] = book[side][rate];
-                        combinedBook[side][rate].total += +book[side][rate]
+                        combinedBook[side][paddedRate][book.exchange] = book[side][rate];
+                        combinedBook[side][paddedRate].total += +book[side][rate]
                     }
                 });
             });
