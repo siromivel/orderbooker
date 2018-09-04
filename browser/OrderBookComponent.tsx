@@ -79,7 +79,7 @@ class OrderBook extends Component<{}, { orderbook: any }> {
                         <h2 className="side-label">Bid</h2>
                         <div className="order-pane bids">
                             {
-                                this.renderSide(this.state.orderbook.bids)
+                                this.renderSide(this.state.orderbook.bids).reverse()
                             }
                         </div>
                         <div className="orderbook-total">Total Bids: { this.tallyOrderbookSide(this.state.orderbook.bids) } ETH</div>
@@ -88,7 +88,7 @@ class OrderBook extends Component<{}, { orderbook: any }> {
                         <h2 className="side-label">Ask</h2>
                         <div className="order-pane asks">
                             {
-                                this.renderSide(this.state.orderbook.asks).reverse()
+                                this.renderSide(this.state.orderbook.asks)
                             }
                         </div>
                         <div className="orderbook-total">Total Asks: { this.tallyOrderbookSide(this.state.orderbook.asks) } ETH</div>
