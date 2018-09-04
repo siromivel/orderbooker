@@ -2,6 +2,9 @@
 
 Produces a combined orderbook for bittrex and poloniex.
 
+Overlapping orders are highlighting in grey ![#f03c15](https://placehold.it/15/999999/000000?text=+) `#999999`.
+If an order overlaps, that means that the order can immediately be filled by a standing order on another exchange.
+
 Currently live on http://ec2-18-212-93-59.compute-1.amazonaws.com:1420/
 
 ## Run Tests
