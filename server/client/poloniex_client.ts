@@ -53,10 +53,12 @@ class PoloniexClient extends ExchangeClient {
 
             case 'x':
                 console.log(`invalid data: ${rawData}`);
+                process.exit(1);
                 break;
 
             default:
                 console.log(`unknown channel ID ${channelId}`);
+                process.exit(1);
         }
         console.log("updated polo");
         this.redis.set("polo_book", JSON.stringify(this.orderbook));
