@@ -46,7 +46,7 @@
     height: 2rem;
 }
 
-.orderbook-exchange-info {
+.orderbook-value.orderbook-exchange-info {
     color: #000;
     flex-basis: 260px;
     font-size: 10px;
