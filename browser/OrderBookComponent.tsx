@@ -25,8 +25,12 @@ class OrderBook extends Component<{}, { orderbook: any }> {
     }
 
     tallyOrderbookSide(side: any) {
-        return Object.keys(side).reduce((sum, entry: any) => {
-            return sum += +side[entry].total
+        return Object.keys(side).reduce((sum: number, entry: any) => {
+            sum += Object.keys(entry).reduce((s: number, exchange: any) => {
+                s += exchange.total;
+                return s;
+            }, 0);
+            return sum;
         }, 0);
     }
 
@@ -68,11 +72,11 @@ class OrderBook extends Component<{}, { orderbook: any }> {
                     coinbaseVolume += orderbookAtRate['coinbase'];
                 }
 
-                let total = poloVolume + trexVolume + coinbaseVolume;
+                let totalAtRate = poloVolume + trexVolume + coinbaseVolume;
 
                 return <div key={i} className={"orderbook-cell" + (orderbookAtRate.overlap ? ' orderbook-overlap' : '')}>
                     <div className="orderbook-value orderbook-rate">{rate}</div>
-                    <div className="orderbook-value orderbook-quantity">{total.toPrecision(8)} ETH</div>
+                    <div className="orderbook-value orderbook-quantity">{totalAtRate.toPrecision(8)} ETH</div>
                     { this.renderExchangeInfo(trexVolume, poloVolume, coinbaseVolume) }
                 </div>
             })
