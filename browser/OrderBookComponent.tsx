@@ -68,8 +68,8 @@ class OrderBook extends Component<{}, { orderbook: any }> {
                     coinbaseVolume += orderbookAtRate['coinbase'];
                 }
 
-                return <div key={i} className="orderbook-cell">
-                    <div className={"orderbook-value orderbook-rate" + (orderbookAtRate.overlap ? ' orderbook-overlap' : '')}>{rate}</div>
+                return <div key={i} className={"orderbook-cell" + (orderbookAtRate.overlap ? ' orderbook-overlap' : '')}>
+                    <div className="orderbook-value orderbook-rate">{rate}</div>
                     <div className="orderbook-value orderbook-quantity">{orderbookAtRate.total.toPrecision(8)} ETH</div>
                     { this.renderExchangeInfo(trexVolume, poloVolume, coinbaseVolume) }
                 </div>
@@ -94,7 +94,7 @@ class OrderBook extends Component<{}, { orderbook: any }> {
                         <h2 className="side-label">Ask</h2>
                         <div className="order-pane asks">
                             {
-                                this.renderSide(this.state.orderbook.asks).sort()
+                                this.renderSide(this.state.orderbook.asks)
                             }
                         </div>
                         <div className="orderbook-total">Total Asks: { this.tallyOrderbookSide(this.state.orderbook.asks) } ETH</div>
