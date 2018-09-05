@@ -68,9 +68,11 @@ class OrderBook extends Component<{}, { orderbook: any }> {
                     coinbaseVolume += orderbookAtRate['coinbase'];
                 }
 
+                let total = poloVolume + trexVolume + coinbaseVolume;
+
                 return <div key={i} className={"orderbook-cell" + (orderbookAtRate.overlap ? ' orderbook-overlap' : '')}>
                     <div className="orderbook-value orderbook-rate">{rate}</div>
-                    <div className="orderbook-value orderbook-quantity">{orderbookAtRate.total.toPrecision(8)} ETH</div>
+                    <div className="orderbook-value orderbook-quantity">{total.toPrecision(8)} ETH</div>
                     { this.renderExchangeInfo(trexVolume, poloVolume, coinbaseVolume) }
                 </div>
             })

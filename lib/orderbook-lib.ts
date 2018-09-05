@@ -9,10 +9,9 @@ export default {
 
                     if (book[side][rate]) {
                         if (!combinedBook[side][paddedRate]) {
-                            combinedBook[side][paddedRate] = { total: 0 };
+                            combinedBook[side][paddedRate] = {};
                         }
                         combinedBook[side][paddedRate][book.exchange] = book[side][rate];
-                        combinedBook[side][paddedRate].total += book[side][rate]
                     }
                 });
             });

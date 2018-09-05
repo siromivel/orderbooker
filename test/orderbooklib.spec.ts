@@ -31,7 +31,7 @@ describe('orderbookLib', () => {
             let coinbaseBook = {
                 asks: {
                     '0.175': 10,
-                    '0.14990001': 999
+                    '0.14990001': 204.50943
                 },
                 bids: {
                     '0.1487': 9001,
@@ -42,19 +42,19 @@ describe('orderbookLib', () => {
 
             let expected = {
                 asks: {
-                    '0.17500000': { total: 10, coinbase: 10, overlap: false },
-                    '0.17100000': { total: 3.75, bittrex: 8.75, overlap: false },
-                    '0.17000000': { total: 3.50, poloniex: 3.50, overlap: false },
-                    '0.15500000': { total: 999, bittrex: 999, overlap: false },
-                    '0.15000000': { total: 99, poloniex: 99, overlap: false },
-                    '0.14990001': { total: 999, coinbase: 999, overlap: false }
+                    '0.17500000': { coinbase: 10, overlap: false },
+                    '0.17100000': { bittrex: 3.75, overlap: false },
+                    '0.17000000': { poloniex: 3.50, overlap: false },
+                    '0.15500000': { bittrex: 999, overlap: false },
+                    '0.15000000': { poloniex: 99, overlap: false },
+                    '0.14990001': { coinbase: 204.50943, overlap: false }
                 },
                 bids: {
-                    '0.14990000': { total: 350, poloniex: 350, overlap: false },
-                    '0.14870000': { total: 18002, bittrex: 9001, coinbase: 9001, overlap: false },
-                    '0.08000000': { total: 0.99, poloniex: 0.99, overlap: false },
-                    '0.07000000': { total: 240, bittrex: 240, overlap: false },
-                    '0.06000000': { total: 175, coinbase: 175, overlap: false }
+                    '0.14990000': { poloniex: 350, overlap: false },
+                    '0.14870000': { bittrex: 9001, coinbase: 9001, overlap: false },
+                    '0.08000000': { poloniex: 0.99, overlap: false },
+                    '0.07000000': { bittrex: 240, overlap: false },
+                    '0.06000000': { coinbase: 175, overlap: false }
                 }
             }
 
@@ -90,16 +90,16 @@ describe('orderbookLib', () => {
 
             let expected = {
                 asks: {
-                    '0.17000000': { total: 3.50, poloniex: 3.50, overlap: false },
-                    '0.17100000': { total: 3.75, bittrex: 3.75, overlap: false },
-                    '0.15500000': { total: 999, bittrex: 999, overlap: false },
-                    '0.15000000': { total: 99, poloniex: 99, overlap: true }
+                    '0.17000000': { poloniex: 3.50, overlap: false },
+                    '0.17100000': { bittrex: 3.75, overlap: false },
+                    '0.15500000': { bittrex: 999, overlap: false },
+                    '0.15000000': { poloniex: 99, overlap: true }
                 },
                 bids: {
-                    '0.14990000': { total: 350, poloniex: 350, overlap: false },
-                    '0.15100000': { total: 9001, bittrex: 9001, overlap: true },
-                    '0.08000000': { total: 0.99, poloniex: 0.99, overlap: false },
-                    '0.07000000': { total: 240, bittrex: 240, overlap: false }
+                    '0.14990000': { poloniex: 350, overlap: false },
+                    '0.15100000': { bittrex: 9001, overlap: true },
+                    '0.08000000': { poloniex: 0.99, overlap: false },
+                    '0.07000000': { bittrex: 240, overlap: false }
                 }
             }
 
