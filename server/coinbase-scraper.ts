@@ -1,7 +1,7 @@
 import Redis from 'redis';
 import CoinbaseClient from './client/coinbase_client';
 
-const redis = Redis.createClient('redis://localhost:6379');
+const redis = Redis.createClient('redis://redis:6379');
 const coinbaseClient = new CoinbaseClient(redis);
 
 async function harvest() {
