@@ -7,6 +7,15 @@ services:
       - "6379"
     links:
       - "redis"
+  coinbase:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile-coinbase-scraper
+    ports:
+      - "8080"
+      - "6379"
+    links:
+      - redis
   polo:
     build: 
       context: ./
