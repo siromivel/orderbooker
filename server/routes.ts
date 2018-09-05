@@ -15,6 +15,12 @@ module.exports = (app: Application, redis: RedisClient) => {
             .catch(res.status(500).send)
     });
 
+    app.get('/api/orderbook/coinbase', (req: Request, res: Response) => {
+        getFromRedis('coinbase_book')
+            .then(book => res.status(200).send(book))
+            .catch(res.status(500).send)
+    });
+
     app.get('/api/orderbook/poloniex', (req: Request, res: Response) => {
         getFromRedis('polo_book')
             .then(book => res.status(200).send(book))
