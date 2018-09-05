@@ -12,14 +12,14 @@ export default {
                             combinedBook[side][paddedRate] = { total: 0 };
                         }
                         combinedBook[side][paddedRate][book.exchange] = book[side][rate];
-                        combinedBook[side][paddedRate].total += +book[side][rate]
+                        combinedBook[side][paddedRate].total += book[side][rate]
                     }
                 });
             });
             return combinedBook;
         }, { asks: {}, bids: {} });
 
-        let sortNumericKeys = (h: object) => Object.keys(h).sort((m: string, n: string) => +m - +n); 
+        let sortNumericKeys = (h: object) => Object.keys(h).sort((m: string, n: string) => +m - +n);
         let sortedAskKeys = sortNumericKeys(combined.asks);
         let sortedBidKeys = sortNumericKeys(combined.bids);
         let lastBid = sortedBidKeys.length - 1;
@@ -66,6 +66,12 @@ export default {
     },
     processBittrexUpdate(orderbook: any, update: any, side: string) {
         let type = update.TY
+
+        let topAsk = Object.keys(orderbook.asks).sort((m, n) => +m - +n)[0];
+        let topBid = Object.keys(orderbook.bids).sort((m, n) => +n - +m)[0];
+        if ((side === 'bids' && +topAsk <= +update.R) || (side === 'asks' && +topBid >= +update.R)) {
+            throw new Error("Bad Bittrex Data Detected");
+        }
 
         switch(type) {
             case 1:

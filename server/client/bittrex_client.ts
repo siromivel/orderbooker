@@ -82,7 +82,12 @@ class BittrexClient {
          });
 
          payload.Z.forEach((update: any) => {
-            this.orderbook = orderbookLib.processBittrexUpdate(this.orderbook, update, 'bids')
+            try {
+                this.orderbook = orderbookLib.processBittrexUpdate(this.orderbook, update, 'bids')
+            } catch(err) {
+                console.log(err.message + ' - Restarting');
+                process.exit(1);
+            }
          });
 
          payload.f.forEach((update: any) => {
