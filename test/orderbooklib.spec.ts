@@ -30,20 +30,21 @@ describe('orderbookLib', () => {
 
             let expected = {
                 asks: {
-                    '0.170': { total: 3.50, poloniex: 3.50, overlap: false },
-                    '0.171': { total: 3.75, bittrex: 3.75, overlap: false },
-                    '0.155': { total: 999, bittrex: 999, overlap: false },
-                    '0.150': { total: 99, poloniex: 99, overlap: false }
+                    '0.17000000': { total: 3.50, poloniex: 3.50, overlap: false },
+                    '0.17100000': { total: 3.75, bittrex: 3.75, overlap: false },
+                    '0.15500000': { total: 999, bittrex: 999, overlap: false },
+                    '0.15000000': { total: 99, poloniex: 99, overlap: false }
                 },
                 bids: {
-                    '0.1499': { total: 350, poloniex: 350, overlap: false },
-                    '0.1487': { total: 9001, bittrex: 9001, overlap: false },
-                    '0.080': { total: 0.99, poloniex: 0.99, overlap: false },
-                    '0.070': { total: 240, bittrex: 240, overlap: false }
+                    '0.14990000': { total: 350, poloniex: 350, overlap: false },
+                    '0.14870000': { total: 9001, bittrex: 9001, overlap: false },
+                    '0.08000000': { total: 0.99, poloniex: 0.99, overlap: false },
+                    '0.07000000': { total: 240, bittrex: 240, overlap: false }
                 }
             }
 
             let orderbook = orderbookLib.combineBooks([poloBook, trexBook]);
+
             expect(orderbook).to.deep.equal(expected)
         });
 
@@ -74,16 +75,16 @@ describe('orderbookLib', () => {
 
             let expected = {
                 asks: {
-                    '0.170': { total: 3.50, poloniex: 3.50, overlap: false },
-                    '0.171': { total: 3.75, bittrex: 3.75, overlap: false },
-                    '0.155': { total: 999, bittrex: 999, overlap: false },
-                    '0.150': { total: 99, poloniex: 99, overlap: true }
+                    '0.17000000': { total: 3.50, poloniex: 3.50, overlap: false },
+                    '0.17100000': { total: 3.75, bittrex: 3.75, overlap: false },
+                    '0.15500000': { total: 999, bittrex: 999, overlap: false },
+                    '0.15000000': { total: 99, poloniex: 99, overlap: true }
                 },
                 bids: {
-                    '0.1499': { total: 350, poloniex: 350, overlap: false },
-                    '0.151': { total: 9001, bittrex: 9001, overlap: true },
-                    '0.080': { total: 0.99, poloniex: 0.99, overlap: false },
-                    '0.070': { total: 240, bittrex: 240, overlap: false }
+                    '0.14990000': { total: 350, poloniex: 350, overlap: false },
+                    '0.15100000': { total: 9001, bittrex: 9001, overlap: true },
+                    '0.08000000': { total: 0.99, poloniex: 0.99, overlap: false },
+                    '0.07000000': { total: 240, bittrex: 240, overlap: false }
                 }
             }
 
@@ -92,51 +93,65 @@ describe('orderbookLib', () => {
         });
     });
 
-    it('parses raw bittrex book data', () => {
-        let rawTrexBook = {
-            S: [
-                { R: '0.170', Q: '3.50' },
-                { R: '0.150', Q: '99' }
-            ],
-            Z: [
-                { R: '0.1499', Q: '350' },
-                { R: '0.080', Q: '0.99' }
-            ]
-        }
+    describe('import orderbooks', () => {
+        let expectedOrderbook;
 
-        expect(orderbookLib.mapBittrexOrderbookData(rawTrexBook)).to.deep.equal({
-            asks: {
-                '0.170': 3.50,
-                '0.150': 99
-            },
-            bids: {
-                '0.1499': 350,
-                '0.080': 0.99
+        beforeEach(() => {
+            expectedOrderbook = {
+                asks: {
+                    '0.170': 3.50,
+                    '0.150': 99
+                },
+                bids: {
+                    '0.1499': 350,
+                    '0.080': 0.99
+                }
             }
         });
-    });
 
-    it('parses raw poloniex book data', () => {
-        let rawPoloBook = {
-            rawAsks: {
-                        '0.170': '3.50',
-                        '0.150': '99'
-                    },
-            rawBids: {
-                    '0.1499': '350',
-                    '0.080': '0.99'
+        it('parses raw bittrex book data', () => {
+            let rawTrexBook = {
+                S: [
+                    { R: '0.170', Q: '3.50' },
+                    { R: '0.150', Q: '99' }
+                ],
+                Z: [
+                    { R: '0.1499', Q: '350' },
+                    { R: '0.080', Q: '0.99' }
+                ]
             }
-        }
 
-        expect(orderbookLib.mapPoloniexOrderbookData(rawPoloBook)).to.deep.equal({
-            asks: {
-                '0.170': 3.50,
-                '0.150': 99
-            },
-            bids: {
-                '0.1499': 350,
-                '0.080': 0.99
+            expect(orderbookLib.mapBittrexOrderbookData(rawTrexBook)).to.deep.equal(expectedOrderbook);
+        });
+
+        it('parses raw coinbase book data', () => {
+            let rawCoinbaseBook = {
+                rawAsks: [
+                    ['0.170', '3.50'],
+                    ['0.150', '99']
+                ],
+                rawBids: [
+                    ['0.1499', '350'],
+                    ['0.080', '0.99']
+                ]
             }
+
+            expect(orderbookLib.mapCoinbaseOrderbookData(rawCoinbaseBook)).to.deep.equal(expectedOrderbook);
+        });
+
+        it('parses raw poloniex book data', () => {
+            let rawPoloBook = {
+                rawAsks: {
+                            '0.170': '3.50',
+                            '0.150': '99'
+                        },
+                rawBids: {
+                        '0.1499': '350',
+                        '0.080': '0.99'
+                }
+            }
+
+            expect(orderbookLib.mapPoloniexOrderbookData(rawPoloBook)).to.deep.equal(expectedOrderbook);
         });
     });
 

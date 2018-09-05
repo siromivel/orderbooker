@@ -41,7 +41,7 @@ class PoloniexClient extends ExchangeClient {
                     rawBids: bookData[1].orderBook[1]
                 }
 
-                this.orderbook = orderbookLib.mapPoloniexOrderbookData(rawOrderBook)
+                this.orderbook = orderbookLib.mapPoloniexOrderbookData(rawOrderBook);
                 break;
 
             case 'o':
@@ -68,20 +68,6 @@ class PoloniexClient extends ExchangeClient {
         }
         console.log("updated polo");
         this.redis.set("polo_book", JSON.stringify(this.orderbook));
-    }
-
-    async getFromRedis(key: string): Promise<any> {
-        return new Promise((resolve, reject) => {
-            return this.redis.get(key, (err, val) => {
-                if (err) return reject(err);
-                try {
-                    let parsed = JSON.parse(val);
-                    return resolve(parsed);
-                } catch(e) {
-                    return reject(e);
-                }
-            });
-        });
     }
 }
 
