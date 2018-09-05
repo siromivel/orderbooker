@@ -102,7 +102,9 @@ export default {
         let quantity = payload[2];
 
         let topAsk = Object.keys(orderbook.asks).sort((m, n) => +m - +n)[0];
-        if (+topAsk <= +rate) {
+        let topBid = Object.keys(orderbook.asks).sort((m, n) => +n - +m)[0];
+
+        if ((side == 'bids' && +topAsk <= +rate) || (side === 'asks' && +topBid >= +rate)) {
             throw new Error("Bad Coinbase Data Detected");
         }
 
