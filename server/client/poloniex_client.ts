@@ -1,14 +1,12 @@
 import { RedisClient } from "redis";
-import ExchangeClient from '../client/exchange_client';
 import WebSocket from 'ws';
 import orderbookLib from "../../lib/orderbook-lib";
 
-class PoloniexClient extends ExchangeClient {
+class PoloniexClient {
     redis: RedisClient;
     orderbook: any;
 
     constructor(redis: RedisClient) {
-        super();
         this.redis = redis;
         this.orderbook = {};
     }

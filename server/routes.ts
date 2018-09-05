@@ -38,16 +38,19 @@ module.exports = (app: Application, redis: RedisClient) => {
     async function getCombinedOrderBook() {
         let books = [
             getFromRedis('polo_book'),
-            getFromRedis('trex_book')
+            getFromRedis('trex_book'),
+            getFromRedis('coinbase_book')
         ];
 
         let poloBook = await books[0] as any;
         let trexBook = await books[1] as any;
+        let coinbaseBook = await books[2] as any;
 
         trexBook.exchange = 'bittrex';
         poloBook.exchange = 'poloniex';
+        coinbaseBook.exchange = 'coinbase';
 
-        books = [poloBook, trexBook];
+        books = [coinbaseBook, poloBook, trexBook];
 
         return orderbookLib.combineBooks(books);
     }

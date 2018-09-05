@@ -1,17 +1,14 @@
-import { OrderBook } from '../api/orderbook'
-import ExchangeClient from '../client/exchange_client';
 import zlib from 'zlib';
 import { RedisClient } from 'redis';
 import orderbookLib from '../../lib/orderbook-lib';
 
 const signalR = require('signalr-client');
 
-class BittrexClient extends ExchangeClient {
+class BittrexClient {
     redis: RedisClient;
     orderbook: any;
 
     constructor(redis: RedisClient) {
-        super();
         this.redis = redis;
         this.orderbook = {};
     }
