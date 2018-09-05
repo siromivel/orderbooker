@@ -27,7 +27,7 @@ class OrderBook extends Component<{}, { orderbook: any }> {
     tallyOrderbookSide(side: any) {
         return Object.keys(side).reduce((sum: number, rate: any) => {
             sum += Object.keys(side[rate]).reduce((s: number, exchange: any) => {
-                s += +side[rate][exchange].total || 0;
+                s += +side[rate][exchange] || 0;
                 return s;
             }, 0);
             return sum;
