@@ -65,7 +65,8 @@
 }
 
 .orderbook-total {
-    padding-left: 0.5rem;
+    font-weight: bold;
+    padding: 0.5rem;
 }
 
 .orderbook-value {
