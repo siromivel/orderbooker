@@ -180,24 +180,6 @@ describe('orderbookLib', () => {
             }
         });
 
-        it('order book changes on bittrex', () => {
-            let update = {
-                'TY': 1,
-                'R': '0.150',
-                'Q': '1000'
-            }
-            orderbook = orderbookLib.processBittrexUpdate(orderbook, update, 'asks');
-            expect(orderbook.asks['0.150']).to.be.undefined;
-
-            update = {
-                'TY': 2,
-                'R': '0.1499',
-                'Q': '50'
-            }
-            orderbook = orderbookLib.processBittrexUpdate(orderbook, update, 'bids');
-            expect(orderbook).to.deep.equal(updatedOrderbook);
-        });
-
         it('buys on bittrex', () => {
             let buy = {
                 'OT': 'BUY',
@@ -206,6 +188,7 @@ describe('orderbookLib', () => {
             }
 
             orderbook = orderbookLib.processBittrexFill(orderbook, buy);
+
             expect(orderbook.asks['0.150']).to.equal(50);
 
             buy = {
@@ -215,6 +198,7 @@ describe('orderbookLib', () => {
             }
 
             orderbook = orderbookLib.processBittrexFill(orderbook, buy);
+
             expect(orderbook.asks['0.150']).to.be.undefined;
         });
 
@@ -226,6 +210,7 @@ describe('orderbookLib', () => {
             }
 
             orderbook = orderbookLib.processBittrexFill(orderbook, sell);
+
             expect(orderbook.bids['0.1499']).to.equal(248.76);
 
             sell = {
@@ -235,7 +220,40 @@ describe('orderbookLib', () => {
             }
 
             orderbook = orderbookLib.processBittrexFill(orderbook, sell);
+
             expect(orderbook.bids['0.1499']).to.be.undefined;
+        });
+
+        it('order book updates on bittrex', () => {
+            let update = {
+                'TY': 1,
+                'R': '0.150',
+                'Q': '1000'
+            }
+            orderbook = orderbookLib.processBittrexUpdate(orderbook, update, 'asks');
+
+            expect(orderbook.asks['0.150']).to.be.undefined;
+
+            update = {
+                'TY': 2,
+                'R': '0.1499',
+                'Q': '50'
+            }
+            orderbook = orderbookLib.processBittrexUpdate(orderbook, update, 'bids');
+
+            expect(orderbook).to.deep.equal(updatedOrderbook);
+        });
+
+        it('order book updates on coinbase', () => {
+            let update = ['sell', '0.150', '0'];
+            orderbook = orderbookLib.processCoinbaseUpdate(orderbook, update);
+
+            expect(orderbook.asks['0.150']).to.be.undefined;
+
+            update = ['buy', '0.1499', '50'];
+            orderbook = orderbookLib.processCoinbaseUpdate(orderbook, update);
+
+            expect(orderbook).to.deep.equal(updatedOrderbook);
         });
 
         it('buys on poloniex', () => {

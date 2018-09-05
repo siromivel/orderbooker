@@ -95,8 +95,18 @@ export default {
             bids: mapLevels(orderbookData.rawBids)
         }
    },
-   processCoinbaseUpdate(orderbook: any, rawData: any) {
+   processCoinbaseUpdate(orderbook: any, payload: Array<string>) {
+        let side = payload[0] === 'buy' ? 'bids' : 'asks';
+        let rate = payload[1];
+        let quantity = payload[2];
 
+        if (quantity === '0') {
+            delete orderbook[side][rate];
+        } else {
+            orderbook[side][rate] = +quantity;
+        }
+
+        return orderbook;
    },
    mapPoloniexOrderbookData(orderbookData: any): any {
         let mapLevels = (levels: any) => {
