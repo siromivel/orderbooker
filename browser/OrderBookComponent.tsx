@@ -94,7 +94,7 @@ class OrderBook extends Component<{}, { orderbook: any }> {
                         <h2 className="side-label">Ask</h2>
                         <div className="order-pane asks">
                             {
-                                this.renderSide(this.state.orderbook.asks)
+                                this.renderSide(this.state.orderbook.asks).sort()
                             }
                         </div>
                         <div className="orderbook-total">Total Asks: { this.tallyOrderbookSide(this.state.orderbook.asks) } ETH</div>

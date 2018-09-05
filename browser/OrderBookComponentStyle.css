@@ -43,6 +43,7 @@
     display: flex;
     flex-direction: row;
     height: 2rem;
+    padding: 2px;
 }
 
 .orderbook-overlap {

@@ -47,7 +47,12 @@ class CoinbaseClient {
             this.orderbook = orderbookLib.mapCoinbaseOrderbookData(rawBook);
         } else if (rawData.type === 'l2update') {
             rawData.changes.forEach((change: Array<string>) => {
-                this.orderbook = orderbookLib.processCoinbaseUpdate(this.orderbook, change);
+                try {
+                    this.orderbook = orderbookLib.processCoinbaseUpdate(this.orderbook, change);
+                } catch(err) {
+                    console.log(err.message + ' - Restarting');
+                    process.exit(1);
+                }
             });
         }
         this.redis.set("coinbase_book", JSON.stringify(this.orderbook));

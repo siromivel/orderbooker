@@ -4,6 +4,7 @@ export default {
             ['asks', 'bids'].forEach((side) => {
                 Object.keys(book[side]).forEach((rate: string) => {
                     let paddedRate = rate;
+                    if (!paddedRate.includes('.')) paddedRate += '.';
                     while (paddedRate.length < 10) paddedRate += '0';
 
                     if (book[side][rate]) {
@@ -99,6 +100,11 @@ export default {
         let side = payload[0] === 'buy' ? 'bids' : 'asks';
         let rate = payload[1];
         let quantity = payload[2];
+
+        let topAsk = Object.keys(orderbook.asks).sort((m, n) => +m - +n)[0];
+        if (+topAsk <= +rate) {
+            throw new Error("Bad Coinbase Data Detected");
+        }
 
         if (quantity === '0') {
             delete orderbook[side][rate];
