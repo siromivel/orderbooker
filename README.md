@@ -18,7 +18,7 @@ Assuming you are running a Node environment, install typescript and tsc if you d
 
 ```npm install -g typescript tsc```
 
-Compile the project
+Run an `npm install` inside of the repository and then compile the project:
 ```tsc --project tsconfig.json```
 
 Build and start the services and main web server using docker
