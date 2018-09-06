@@ -62,7 +62,7 @@ export default {
     processBittrexUpdate(orderbook: any, update: any, side: string) {
         let type = update.TY;
         let rate = update.R;
-        let quantity = type === 1 ? 0 :+update.Q;
+        let quantity = type === 1 ? 0 : +update.Q;
 
         return this.processUpdate(orderbook, side, rate, quantity);
    },
