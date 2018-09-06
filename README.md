@@ -7,6 +7,8 @@ If an order overlaps, that means that the order can immediately be filled by a s
 
 Currently live on http://ec2-18-212-93-59.compute-1.amazonaws.com:1420/
 
+Built using Node 8 & TypeScript for the RESTful web API and the exchange websocket clients with a shared Redis store.
+
 ## Run Tests
 `npm test`
 
