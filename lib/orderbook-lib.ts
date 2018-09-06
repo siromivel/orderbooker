@@ -52,16 +52,12 @@ export default {
             bids: aggregateLevels(orderbookData.Z)
         }
     },
-    processBittrexFill(orderbook: any, fill: any) {
-        let side = fill.OT === 'BUY' ? 'asks' : 'bids';
+    processBittrexFill(orderbook: any, payload: any) {
+        let side = payload.OT === 'BUY' ? 'asks' : 'bids';
+        let rate = payload.R;
+        let quantity = +payload.Q;
 
-        if (orderbook[side][fill.R] - fill.Q <= 0) {
-            delete orderbook[side][fill.R];
-        } else {
-            orderbook[side][fill.R] -= +fill.Q;
-        }
-
-        return orderbook;
+        return this.processFill(orderbook, side, rate, quantity);
     },
     processBittrexUpdate(orderbook: any, update: any, side: string) {
         let type = update.TY;
@@ -108,13 +104,7 @@ export default {
         let rate = payload[2];
         let quantity = +payload[3];
 
-        if (orderbook[side][rate] - quantity <= 0) {
-            delete orderbook[side][payload[2]];
-        } else {
-            orderbook[side][rate] -= quantity;
-        }
-
-        return orderbook;
+        return this.processFill(orderbook, side, rate, quantity);
     },
     processPoloniexUpdate(orderbook: any, payload: Array<any>) {
         let side = payload[1] ? 'bids' : 'asks';
@@ -129,8 +119,14 @@ export default {
 
         return ((side === 'bids' && +topAsk <= +rate) || (side === 'asks' && +topBid >= +rate));
     },
-    processFill() {
+    processFill(orderbook: any, side: string, rate: string, quantity: number) {
+        if (orderbook[side][rate] - quantity <= 0) {
+            delete orderbook[side][rate];
+        } else {
+            orderbook[side][rate] -= quantity;
+        }
 
+        return orderbook;
     },
     processUpdate(orderbook: any, side: string, rate: string, quantity: number) {
         if (quantity === 0) {
