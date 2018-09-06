@@ -102,23 +102,17 @@ export default {
    processCoinbaseUpdate(orderbook: any, payload: Array<string>) {
         let side = payload[0] === 'buy' ? 'bids' : 'asks';
         let rate = payload[1];
-        let quantity = payload[2];
+        let quantity = +payload[2];
 
         if (this.checkForBadOrderbookData(orderbook, rate, side)) throw new Error("Bad Coinbase Data Detected");
 
-        if (quantity === '0') {
+        if (!quantity) {
             delete orderbook[side][rate];
         } else {
-            orderbook[side][rate] = +quantity;
+            orderbook[side][rate] = quantity;
         }
 
         return orderbook;
-   },
-   checkForBadOrderbookData(orderbook: any, rate: string, side: string) {
-    let topAsk = Object.keys(orderbook.asks).sort((m, n) => +m - +n)[0];
-    let topBid = Object.keys(orderbook.bids).sort((m, n) => +n - +m)[0];
-
-    return ((side === 'bids' && +topAsk <= +rate) || (side === 'asks' && +topBid >= +rate));
    },
    mapPoloniexOrderbookData(orderbookData: any): any {
         let mapLevels = (levels: any) => {
@@ -160,5 +154,11 @@ export default {
         }
 
         return orderbook;
+    },
+    checkForBadOrderbookData(orderbook: any, rate: string, side: string) {
+        let topAsk = Object.keys(orderbook.asks).sort((m, n) => +m - +n)[0];
+        let topBid = Object.keys(orderbook.bids).sort((m, n) => +n - +m)[0];
+
+        return ((side === 'bids' && +topAsk <= +rate) || (side === 'asks' && +topBid >= +rate));
     }
 }
