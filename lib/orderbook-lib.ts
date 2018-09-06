@@ -66,25 +66,9 @@ export default {
     processBittrexUpdate(orderbook: any, update: any, side: string) {
         let type = update.TY;
         let rate = update.R;
-        let quantity = +update.Q;
+        let quantity = type === 1 ? 0 :+update.Q;
 
-        if (this.checkForBadOrderbookData(orderbook, rate, side)) throw new Error("Bad Bittrex Data Detected");
-
-        switch(type) {
-            case 1:
-               delete orderbook[side][rate]
-               break;
-
-            case 0:
-            case 2:
-               orderbook[side][rate] = quantity;
-               break;
-
-            default:
-               console.log("Unknown Bittrex update type: " + type);
-        }
-
-        return orderbook;
+        return this.processUpdate(orderbook, side, rate, quantity);
    },
    mapCoinbaseOrderbookData(orderbookData: any): any {
         let mapLevels = (levels: Array<Array<string>>) => {
@@ -104,15 +88,7 @@ export default {
         let rate = payload[1];
         let quantity = +payload[2];
 
-        if (this.checkForBadOrderbookData(orderbook, rate, side)) throw new Error("Bad Coinbase Data Detected");
-
-        if (!quantity) {
-            delete orderbook[side][rate];
-        } else {
-            orderbook[side][rate] = quantity;
-        }
-
-        return orderbook;
+        return this.processUpdate(orderbook, side, rate, quantity);
    },
    mapPoloniexOrderbookData(orderbookData: any): any {
         let mapLevels = (levels: any) => {
@@ -145,20 +121,26 @@ export default {
         let rate = payload[2];
         let quantity = +payload[3];
 
-        if (quantity === 0) {
-            delete orderbook[side][rate];
-        } else if (this.checkForBadOrderbookData(orderbook, rate, side)) {
-            throw new Error("Bad Poloniex Data Detected");
-        } else {
-            orderbook[side][rate] = quantity;
-        }
-
-        return orderbook;
+        return this.processUpdate(orderbook, side, rate, quantity);
     },
     checkForBadOrderbookData(orderbook: any, rate: string, side: string) {
         let topAsk = Object.keys(orderbook.asks).sort((m, n) => +m - +n)[0];
         let topBid = Object.keys(orderbook.bids).sort((m, n) => +n - +m)[0];
 
         return ((side === 'bids' && +topAsk <= +rate) || (side === 'asks' && +topBid >= +rate));
+    },
+    processFill() {
+
+    },
+    processUpdate(orderbook: any, side: string, rate: string, quantity: number) {
+        if (quantity === 0) {
+            delete orderbook[side][rate];
+        } else if (this.checkForBadOrderbookData(orderbook, rate, side)) {
+            throw new Error("Bad Orderbook Data Detected");
+        } else {
+            orderbook[side][rate] = quantity;
+        }
+
+        return orderbook;
     }
 }
