@@ -64,26 +64,24 @@ export default {
         return orderbook;
     },
     processBittrexUpdate(orderbook: any, update: any, side: string) {
-        let type = update.TY
+        let type = update.TY;
+        let rate = update.R;
+        let quantity = +update.Q;
 
-        let topAsk = Object.keys(orderbook.asks).sort((m, n) => +m - +n)[0];
-        let topBid = Object.keys(orderbook.bids).sort((m, n) => +n - +m)[0];
-        if ((side === 'bids' && +topAsk <= +update.R) || (side === 'asks' && +topBid >= +update.R)) {
-            throw new Error("Bad Bittrex Data Detected");
-        }
+        if (this.checkForBadOrderbookData(orderbook, rate, side)) throw new Error("Bad Bittrex Data Detected");
 
         switch(type) {
             case 1:
-               delete orderbook[side][update.R]
+               delete orderbook[side][rate]
                break;
 
             case 0:
             case 2:
-               orderbook[side][update.R] = +update.Q;
+               orderbook[side][rate] = quantity;
                break;
 
             default:
-               console.log("Unknown Bittrex update type");
+               console.log("Unknown Bittrex update type: " + type);
         }
 
         return orderbook;
@@ -106,12 +104,7 @@ export default {
         let rate = payload[1];
         let quantity = payload[2];
 
-        let topAsk = Object.keys(orderbook.asks).sort((m, n) => +m - +n)[0];
-        let topBid = Object.keys(orderbook.bids).sort((m, n) => +n - +m)[0];
-
-        if ((side === 'bids' && +topAsk <= +rate) || (side === 'asks' && +topBid >= +rate)) {
-            throw new Error("Bad Coinbase Data Detected");
-        }
+        if (this.checkForBadOrderbookData(orderbook, rate, side)) throw new Error("Bad Coinbase Data Detected");
 
         if (quantity === '0') {
             delete orderbook[side][rate];
@@ -120,6 +113,12 @@ export default {
         }
 
         return orderbook;
+   },
+   checkForBadOrderbookData(orderbook: any, rate: string, side: string) {
+    let topAsk = Object.keys(orderbook.asks).sort((m, n) => +m - +n)[0];
+    let topBid = Object.keys(orderbook.bids).sort((m, n) => +n - +m)[0];
+
+    return ((side === 'bids' && +topAsk <= +rate) || (side === 'asks' && +topBid >= +rate));
    },
    mapPoloniexOrderbookData(orderbookData: any): any {
         let mapLevels = (levels: any) => {
@@ -135,48 +134,29 @@ export default {
         }
     },
     processPoloniexFill(orderbook: any, payload: Array<any>) {
-        let updateType = payload[1];
+        let side = +payload[1] ? 'asks' : 'bids';
+        let rate = payload[2];
+        let quantity = +payload[3];
 
-        if (updateType) {
-            if (orderbook.asks[payload[2]] - +payload[3] <= 0) {
-                delete orderbook.asks[payload[2]]
-            } else {
-                orderbook.asks[payload[2]] -= +[payload[3]];
-            }
+        if (orderbook[side][rate] - quantity <= 0) {
+            delete orderbook[side][payload[2]];
         } else {
-            if (orderbook.bids[payload[2]] - +payload[3] === 0) {
-                delete orderbook.bids[payload[2]]
-            } else {
-                orderbook.bids[payload[2]] -= +[payload[3]];
-            }
+            orderbook[side][rate] -= quantity;
         }
 
         return orderbook;
     },
     processPoloniexUpdate(orderbook: any, payload: Array<any>) {
-        let updateType = payload[1];
-        
-        if (updateType) {
-            if (+payload[3] === 0) {
-                delete orderbook.bids[payload[2]]
-            } else {
-                let topAsk = Object.keys(orderbook.asks).sort((m, n) => +m - +n)[0];
+        let side = payload[1] ? 'bids' : 'asks';
+        let rate = payload[2];
+        let quantity = +payload[3];
 
-                if (+topAsk <= +payload[2]) {
-                    throw new Error("Bad Poloniex Data Detected");
-                }
-                orderbook.bids[payload[2]] = +[payload[3]];
-            }
+        if (quantity === 0) {
+            delete orderbook[side][rate];
+        } else if (this.checkForBadOrderbookData(orderbook, rate, side)) {
+            throw new Error("Bad Poloniex Data Detected");
         } else {
-            if (+payload[3] === 0) {
-                delete orderbook.asks[payload[2]]
-            } else {
-                let topBid = Object.keys(orderbook.bids).sort((m, n) => +n - +m)[0];
-                if (+topBid >= +payload[2]) {
-                    throw new Error("Bad Poloniex Data Detected");
-                }
-                orderbook.asks[payload[2]] = +[payload[3]];
-            }
+            orderbook[side][rate] = quantity;
         }
 
         return orderbook;
