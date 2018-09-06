@@ -107,7 +107,7 @@ export default {
         return this.processFill(orderbook, side, rate, quantity);
     },
     processPoloniexUpdate(orderbook: any, payload: Array<any>) {
-        let side = payload[1] ? 'bids' : 'asks';
+        let side = +payload[1] ? 'bids' : 'asks';
         let rate = payload[2];
         let quantity = +payload[3];
 
