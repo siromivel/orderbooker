@@ -56,6 +56,8 @@ class CoinbaseClient {
             });
         }
         this.redis.set("coinbase_book", JSON.stringify(this.orderbook));
+
+        console.log("Updated Coinbase Book");
     }
 }
 
