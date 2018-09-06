@@ -8,7 +8,7 @@ class OrderBook extends Component<{}, { orderbook: any }> {
     constructor(props: object) {
         super(props);
         this.state = { orderbook: { asks: {}, bids: {} } };
-        this.target = 'localhost:1420/api';
+        this.target = 'http://localhost:1420/api';
     }
 
     componentDidMount() {
