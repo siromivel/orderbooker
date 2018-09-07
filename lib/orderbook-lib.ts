@@ -40,7 +40,7 @@ export default {
         return sorted;
     },
     mapBittrexOrderbookData(orderbookData: any) {
-        let aggregateLevels = (levels: Array<any>) => {
+        let mapLevels = (levels: Array<any>) => {
             return levels.reduce((levelMap: any, level: any) => {
                 levelMap[level.R] = +level.Q;
                 return levelMap;
@@ -48,8 +48,8 @@ export default {
         }
 
         return {
-            asks: aggregateLevels(orderbookData.S),
-            bids: aggregateLevels(orderbookData.Z)
+            asks: mapLevels(orderbookData.S),
+            bids: mapLevels(orderbookData.Z)
         }
     },
     processBittrexFill(orderbook: any, payload: any) {
