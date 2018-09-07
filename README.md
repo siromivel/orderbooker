@@ -1,6 +1,6 @@
 # orderbooker
 
-Produces a combined orderbook for Bittrex, Poloniex and Coinbase.
+Produces a combined Bitcoin:Ethereum orderbook for Bittrex, Poloniex and Coinbase.
 
 Overlapping orders are highlighted in blue ![#f03c15](https://placehold.it/15/42ebf4/000000?text=+) `#42ebf4`.
 If an order overlaps, that means that the order can immediately be filled by a standing order on another exchange.
