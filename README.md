@@ -5,8 +5,6 @@ Produces a combined Bitcoin:Ethereum orderbook for Bittrex, Poloniex and Coinbas
 Overlapping orders are highlighted in blue ![#f03c15](https://placehold.it/15/42ebf4/000000?text=+) `#42ebf4`.
 If an order overlaps, that means that the order can immediately be filled by a standing order on another exchange.
 
-Currently live on http://ec2-18-212-93-59.compute-1.amazonaws.com:1420/
-
 Built using Node 8 & TypeScript for the RESTful web API and the exchange websocket clients with a shared Redis store.
 
 ## Run Tests
