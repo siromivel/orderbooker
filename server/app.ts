@@ -1,5 +1,4 @@
-const express = require('express');
-'use strict';
+import express from 'express';
 
 class App {
     public app: any

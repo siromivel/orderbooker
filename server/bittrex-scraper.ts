@@ -1,7 +1,7 @@
 import Redis from 'redis';
 import BittrexClient from './client/bittrex_client';
 
-const redis = Redis.createClient("redis://redis:6379");
+const redis = Redis.createClient("redis://localhost:6379");
 const bittrexClient = new BittrexClient(redis);
 
 async function harvest() {

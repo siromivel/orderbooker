@@ -27,6 +27,14 @@ module.exports = (app: Application, redis: RedisClient) => {
             .catch(res.status(500).send)
     });
 
+    app.get('/api/orderbook/combined', (req: Request, res: Response) => {
+        getCombinedOrderBook().then((combinedBook) => {
+            return res.status(200).send(combinedBook);
+        }).catch((err) => {
+            return res.status(500).send(err);
+        });
+    });
+
     async function getFromRedis(key: string) {
         return new Promise((resolve, reject) => {
             return redis.get(key, (err, val) => {
@@ -60,12 +68,4 @@ module.exports = (app: Application, redis: RedisClient) => {
 
         return orderbookLib.combineBooks(books);
     }
-
-    app.get('/api/orderbook/combined', (req: Request, res: Response) => {
-        getCombinedOrderBook().then((combinedBook) => {
-            return res.status(200).send(combinedBook);
-        }).catch((err) => {
-            return res.status(500).send(err);
-        });
-    });
 }

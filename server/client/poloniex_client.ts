@@ -27,6 +27,8 @@ class PoloniexClient {
         let bookData = [];
         let channelId = 'x';
 
+        if (rawData[0] == 1010) return;
+
         if (rawData && rawData[2]) {
             bookData = rawData[2][0];
             channelId = bookData[0];
