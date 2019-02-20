@@ -1,7 +1,7 @@
 import initialState from './initialState';
 import { FETCH_ORDERBOOK, RECEIVE_ORDERBOOK } from '../actions/actionTypes';
 
-export default function orderbook(state = initialState.orderbook, action) {
+export default function orderbook(state = initialState.orderbook, action: any) {
     let freshState;
 
     switch (action.type) {

@@ -1,23 +1,17 @@
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
+import * as orderbookActions from './actions/orderbookActions';
 import React, { Component } from 'react';
 import './OrderBookComponentStyle.css';
 
-class OrderBook extends Component<{}, { orderbook: any }> {
+class OrderBook extends Component<{ orderbookActions: any; orderbook: any }, {}> {
     refreshInterval: any;
-    target: string;
-
-    constructor(props: object) {
-        super(props);
-        this.state = { orderbook: { asks: {}, bids: {} } };
-        this.target = 'http://localhost:1420/api';
-    }
 
     componentDidMount() {
         this.refreshInterval = setInterval(() => {
-            return fetch(this.target + '/orderbook/combined')
-                .then(response => response.json())
-                .then(orderbook => { return this.setState({ orderbook: orderbook }) });
+            this.props.orderbookActions.fetchOrderbook()
         }
-        , 2000);
+        , 5000);
     }
 
     componentWillUnmount() {
@@ -91,19 +85,19 @@ class OrderBook extends Component<{}, { orderbook: any }> {
                         <h2 className="side-label">Bid</h2>
                         <div className="order-pane bids">
                             {
-                                this.renderSide(this.state.orderbook.bids).reverse()
+                                this.renderSide(this.props.orderbook.bids).reverse()
                             }
                         </div>
-                        <div className="orderbook-total">Total Bids: { this.tallyOrderbookSide(this.state.orderbook.bids) } ETH</div>
+                        <div className="orderbook-total">Total Bids: { this.tallyOrderbookSide(this.props.orderbook.bids) } ETH</div>
                     </div>
                     <div className="orderbook-column">
                         <h2 className="side-label">Ask</h2>
                         <div className="order-pane asks">
                             {
-                                this.renderSide(this.state.orderbook.asks)
+                                this.renderSide(this.props.orderbook.asks)
                             }
                         </div>
-                        <div className="orderbook-total">Total Asks: { this.tallyOrderbookSide(this.state.orderbook.asks) } ETH</div>
+                        <div className="orderbook-total">Total Asks: { this.tallyOrderbookSide(this.props.orderbook.asks) } ETH</div>
                     </div>
                 </div>
             </div>
@@ -111,4 +105,19 @@ class OrderBook extends Component<{}, { orderbook: any }> {
     }
 }
 
-export default OrderBook;
+function mapDispatchToProps(dispatch: Dispatch) {
+    return {
+        orderbookActions: bindActionCreators(orderbookActions, dispatch)
+    }
+}
+
+function mapStateToProps(props: { orderbook: object }) {
+    return {
+        orderbook: props.orderbook
+    }
+}
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(OrderBook);
